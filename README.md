@@ -2,9 +2,6 @@
 
 A web-based e-learning application for managing course content, records, search, filtering, validation, and basic reporting.
 
-## Status
-🚧 In development — Day 1 of 8
-
 ## Tech Stack
 - Backend: Python + Flask
 - Frontend: HTML, CSS, JavaScript
