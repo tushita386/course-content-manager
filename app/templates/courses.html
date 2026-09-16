@@ -1,0 +1,38 @@
+{% extends "base.html" %}
+
+{% block title %}My Courses{% endblock %}
+
+{% block content %}
+<h1>My Courses</h1>
+
+<p>
+    {% if student.current_semester %}
+        Semester {{ student.current_semester }}
+    {% else %}
+        No semester set
+    {% endif %}
+    · <a href="{{ url_for('main.select_semester') }}">Change semester</a>
+</p>
+
+<a href="{{ url_for('main.new_course') }}">+ Add New Course</a>
+
+<ul>
+    {% for course in courses %}
+    <li>
+        <strong>{{ course.title }}</strong>
+        {% if course.subject %} — {{ course.subject }}{% endif %}
+        {% if course.semester %} (Semester {{ course.semester }}){% endif %}
+        <br>
+        {{ course.description }}
+        <br>
+        <a href="{{ url_for('main.edit_course', course_id=course.id) }}">Edit</a>
+
+        <form method="POST" action="{{ url_for('main.delete_course', course_id=course.id) }}" style="display:inline;">
+            <button type="submit" onclick="return confirm('Delete this course?')">Delete</button>
+        </form>
+    </li>
+    {% else %}
+    <p>You have no courses yet.</p>
+    {% endfor %}
+</ul>
+{% endblock %}

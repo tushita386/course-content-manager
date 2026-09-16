@@ -1,0 +1,29 @@
+{% extends "base.html" %}
+
+{% block title %}Home{% endblock %}
+
+{% block content %}
+{% if role == 'mentor' %}
+    <h1>Welcome back, {{ name }}</h1>
+    <p>You're logged in as a mentor.</p>
+    <ul class="menu">
+        <li><a href="{{ url_for('main.add_student') }}">Add a Student</a></li>
+    </ul>
+
+{% elif role == 'student' %}
+    <h1>Welcome back, {{ name }}</h1>
+    <p>You're logged in as a student.</p>
+    <ul class="menu">
+        <li><a href="{{ url_for('main.list_courses') }}">My Courses</a></li>
+        <li><a href="{{ url_for('main.select_semester') }}">Change Semester</a></li>
+    </ul>
+
+{% else %}
+    <h1>Course Content Manager</h1>
+    <p>A mentor-first tool to track course content, consistency, and progress.</p>
+    <ul class="menu">
+        <li><a href="{{ url_for('main.register_mentor') }}">Register as a Mentor</a></li>
+        <li><a href="{{ url_for('main.login') }}">Login</a></li>
+    </ul>
+{% endif %}
+{% endblock %}
