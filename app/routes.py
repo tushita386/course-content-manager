@@ -1,6 +1,6 @@
 from functools import wraps
 from flask import Blueprint, render_template, request, redirect, url_for, session
-from app.models import Mentor, Student, email_exists
+from app.models import Mentor, Student, Course, email_exists
 
 main = Blueprint('main', __name__)
 
@@ -20,7 +20,17 @@ def login_required(role=None):
 
 @main.route('/')
 def home():
-    return "Course Content Manager is running!"
+    role = session.get('role')
+    name = None
+
+    if role == 'mentor':
+        mentor = Mentor.get_by_id(session['user_id'])
+        name = mentor.name if mentor else None
+    elif role == 'student':
+        student = Student.get_by_id(session['user_id'])
+        name = student.name if student else None
+
+    return render_template('home.html', role=role, name=name)
 
 
 @main.route('/register/mentor', methods=['GET', 'POST'])
@@ -60,6 +70,8 @@ def login():
         if student and student.verify_password(password):
             session['user_id'] = student.id
             session['role'] = 'student'
+            if student.current_semester is None:
+                return redirect(url_for('main.select_semester'))
             return redirect(url_for('main.home'))
 
         return "Invalid email or password.", 401
@@ -92,3 +104,90 @@ def add_student():
         return redirect(url_for('main.home'))
 
     return render_template('add_student.html')
+
+
+@main.route('/select-semester', methods=['GET', 'POST'])
+@login_required(role='student')
+def select_semester():
+    student = Student.get_by_id(session['user_id'])
+
+    if request.method == 'POST':
+        semester = request.form.get('semester')
+
+        if not semester:
+            return "Please select a semester.", 400
+
+        semester = int(semester)
+        student.update_semester(semester)
+        Course.auto_create_for_semester(student.id, semester)
+        return redirect(url_for('main.list_courses'))
+
+    return render_template('select_semester.html', current_semester=student.current_semester)
+
+
+@main.route('/courses')
+@login_required(role='student')
+def list_courses():
+    student_id = session['user_id']
+    student = Student.get_by_id(student_id)
+    courses = Course.get_by_student(student_id)
+    return render_template('courses.html', courses=courses, student=student)
+
+
+@main.route('/courses/new', methods=['GET', 'POST'])
+@login_required(role='student')
+def new_course():
+    if request.method == 'POST':
+        title = request.form.get('title', '').strip()
+        description = request.form.get('description', '').strip()
+        subject = request.form.get('subject', '').strip()
+        semester = request.form.get('semester') or None
+
+        if not title:
+            return "Course title is required.", 400
+
+        Course.create(title, description, subject, semester, session['user_id'])
+        return redirect(url_for('main.list_courses'))
+
+    return render_template('course_form.html', course=None)
+
+
+@main.route('/courses/<int:course_id>/edit', methods=['GET', 'POST'])
+@login_required(role='student')
+def edit_course(course_id):
+    course = Course.get_by_id(course_id)
+
+    if course is None:
+        return "Course not found.", 404
+
+    if course.student_id != session['user_id']:
+        return "Access denied.", 403
+
+    if request.method == 'POST':
+        title = request.form.get('title', '').strip()
+        description = request.form.get('description', '').strip()
+        subject = request.form.get('subject', '').strip()
+        semester = request.form.get('semester') or None
+
+        if not title:
+            return "Course title is required.", 400
+
+        course.update(title, description, subject, semester)
+        return redirect(url_for('main.list_courses'))
+
+    return render_template('course_form.html', course=course)
+
+
+@main.route('/courses/<int:course_id>/delete', methods=['POST'])
+@login_required(role='student')
+def delete_course(course_id):
+    course = Course.get_by_id(course_id)
+
+    if course is None:
+        return "Course not found.", 404
+
+    if course.student_id != session['user_id']:
+        return "Access denied.", 403
+
+    course.delete()
+    return redirect(url_for('main.list_courses'))
