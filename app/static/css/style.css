@@ -1,17 +1,71 @@
 body {
     font-family: Arial, sans-serif;
-    max-width: 500px;
-    margin: 40px auto;
-    padding: 0 20px;
+    max-width: 600px;
+    margin: 0 auto;
+    padding: 0 20px 40px;
+    color: #222;
+}
+
+nav {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 16px 0;
+    margin-bottom: 30px;
+    border-bottom: 2px solid #4a90e2;
+}
+
+nav .brand {
+    font-weight: bold;
+    font-size: 18px;
+    color: #4a90e2;
+    text-decoration: none;
+}
+
+nav .nav-links a {
+    margin-left: 16px;
+    text-decoration: none;
+    color: #333;
+}
+
+nav .nav-links a:hover {
+    color: #4a90e2;
+}
+
+h1 {
+    color: #222;
+}
+
+.menu {
+    list-style: none;
+    padding: 0;
+}
+
+.menu li {
+    margin: 10px 0;
+}
+
+.menu a {
+    display: inline-block;
+    background: #4a90e2;
+    color: white;
+    padding: 10px 16px;
+    text-decoration: none;
+    border-radius: 4px;
+}
+
+.menu a:hover {
+    background: #357abd;
 }
 
 form {
     display: flex;
     flex-direction: column;
     gap: 10px;
+    max-width: 400px;
 }
 
-input, select, button {
+input, select, button, textarea {
     padding: 8px;
     font-size: 14px;
 }
@@ -22,4 +76,21 @@ button {
     border: none;
     padding: 10px;
     cursor: pointer;
+    border-radius: 4px;
+}
+
+button:hover {
+    background: #357abd;
+}
+
+ul:not(.menu) {
+    list-style: none;
+    padding: 0;
+}
+
+ul:not(.menu) li {
+    border: 1px solid #ddd;
+    border-radius: 6px;
+    padding: 12px;
+    margin-bottom: 10px;
 }
