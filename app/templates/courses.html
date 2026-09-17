@@ -19,7 +19,7 @@
 <ul>
     {% for course in courses %}
     <li>
-        <strong>{{ course.title }}</strong>
+        <strong><a href="{{ url_for('main.course_detail', course_id=course.id) }}">{{ course.title }}</a></strong>
         {% if course.subject %} — {{ course.subject }}{% endif %}
         {% if course.semester %} (Semester {{ course.semester }}){% endif %}
         <br>

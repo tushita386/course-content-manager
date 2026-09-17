@@ -1,0 +1,29 @@
+{% extends "base.html" %}
+
+{% block title %}{% if content %}Edit Content{% else %}New Content{% endif %}{% endblock %}
+
+{% block content %}
+<h1>{% if content %}Edit Content{% else %}Add Content{% endif %} — {{ course.title }}</h1>
+
+<form method="POST">
+    <label>Title</label>
+    <input type="text" name="title" value="{{ content.title if content else '' }}" required>
+
+    <label>Status</label>
+    <select name="status">
+        <option value="Not Started" {% if content and content.status == 'Not Started' %}selected{% endif %}>Not Started</option>
+        <option value="In Progress" {% if content and content.status == 'In Progress' %}selected{% endif %}>In Progress</option>
+        <option value="Completed" {% if content and content.status == 'Completed' %}selected{% endif %}>Completed</option>
+    </select>
+
+    <label>Due Date</label>
+    <input type="date" name="due_date" value="{{ content.due_date if content and content.due_date else '' }}">
+
+    <label>Notes</label>
+    <textarea name="notes">{{ content.notes if content else '' }}</textarea>
+
+    <button type="submit">Save</button>
+</form>
+
+<a href="{{ url_for('main.course_detail', course_id=course.id) }}">Back to {{ course.title }}</a>
+{% endblock %}

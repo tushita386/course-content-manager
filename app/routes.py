@@ -1,6 +1,6 @@
 from functools import wraps
 from flask import Blueprint, render_template, request, redirect, url_for, session
-from app.models import Mentor, Student, Course, email_exists
+from app.models import Mentor, Student, Course, Content, VALID_STATUSES, email_exists
 
 main = Blueprint('main', __name__)
 
@@ -191,3 +191,96 @@ def delete_course(course_id):
 
     course.delete()
     return redirect(url_for('main.list_courses'))
+
+
+@main.route('/courses/<int:course_id>')
+@login_required(role='student')
+def course_detail(course_id):
+    course = Course.get_by_id(course_id)
+
+    if course is None:
+        return "Course not found.", 404
+
+    if course.student_id != session['user_id']:
+        return "Access denied.", 403
+
+    content_items = Content.get_by_course(course_id)
+    return render_template('course_detail.html', course=course, content_items=content_items)
+
+
+@main.route('/courses/<int:course_id>/content/new', methods=['GET', 'POST'])
+@login_required(role='student')
+def new_content(course_id):
+    course = Course.get_by_id(course_id)
+
+    if course is None:
+        return "Course not found.", 404
+
+    if course.student_id != session['user_id']:
+        return "Access denied.", 403
+
+    if request.method == 'POST':
+        title = request.form.get('title', '').strip()
+        notes = request.form.get('notes', '').strip()
+        status = request.form.get('status', 'Not Started')
+        due_date = request.form.get('due_date') or None
+
+        if not title:
+            return "Content title is required.", 400
+
+        if status not in VALID_STATUSES:
+            return "Invalid status value.", 400
+
+        Content.create(title, notes, status, due_date, course_id)
+        return redirect(url_for('main.course_detail', course_id=course_id))
+
+    return render_template('content_form.html', course=course, content=None)
+
+
+@main.route('/content/<int:content_id>/edit', methods=['GET', 'POST'])
+@login_required(role='student')
+def edit_content(content_id):
+    content = Content.get_by_id(content_id)
+
+    if content is None:
+        return "Content not found.", 404
+
+    course = Course.get_by_id(content.course_id)
+
+    if course is None or course.student_id != session['user_id']:
+        return "Access denied.", 403
+
+    if request.method == 'POST':
+        title = request.form.get('title', '').strip()
+        notes = request.form.get('notes', '').strip()
+        status = request.form.get('status', 'Not Started')
+        due_date = request.form.get('due_date') or None
+
+        if not title:
+            return "Content title is required.", 400
+
+        if status not in VALID_STATUSES:
+            return "Invalid status value.", 400
+
+        content.update(title, notes, status, due_date)
+        return redirect(url_for('main.course_detail', course_id=course.id))
+
+    return render_template('content_form.html', course=course, content=content)
+
+
+@main.route('/content/<int:content_id>/delete', methods=['POST'])
+@login_required(role='student')
+def delete_content(content_id):
+    content = Content.get_by_id(content_id)
+
+    if content is None:
+        return "Content not found.", 404
+
+    course = Course.get_by_id(content.course_id)
+
+    if course is None or course.student_id != session['user_id']:
+        return "Access denied.", 403
+
+    course_id = course.id
+    content.delete()
+    return redirect(url_for('main.course_detail', course_id=course_id))
