@@ -1,3 +1,4 @@
+from datetime import datetime
 from werkzeug.security import generate_password_hash, check_password_hash
 from app.database import get_connection
 
@@ -223,5 +224,78 @@ class Course:
     def delete(self):
         conn = get_connection()
         conn.execute("DELETE FROM courses WHERE id = ?", (self.id,))
+        conn.commit()
+        conn.close()
+
+
+VALID_STATUSES = ('Not Started', 'In Progress', 'Completed')
+
+
+class Content:
+    def __init__(self, id, title, notes, status, due_date, updated_at, course_id):
+        self.id = id
+        self.title = title
+        self.notes = notes
+        self.status = status
+        self.due_date = due_date
+        self.updated_at = updated_at
+        self.course_id = course_id
+
+    @classmethod
+    def create(cls, title, notes, status, due_date, course_id):
+        updated_at = datetime.utcnow().isoformat()
+        conn = get_connection()
+        cursor = conn.execute(
+            "INSERT INTO content (title, notes, status, due_date, updated_at, course_id) "
+            "VALUES (?, ?, ?, ?, ?, ?)",
+            (title, notes, status, due_date, updated_at, course_id)
+        )
+        conn.commit()
+        new_id = cursor.lastrowid
+        conn.close()
+        return cls(new_id, title, notes, status, due_date, updated_at, course_id)
+
+    @classmethod
+    def get_by_course(cls, course_id):
+        conn = get_connection()
+        rows = conn.execute(
+            "SELECT * FROM content WHERE course_id = ? ORDER BY due_date IS NULL, due_date",
+            (course_id,)
+        ).fetchall()
+        conn.close()
+        return [cls(row['id'], row['title'], row['notes'], row['status'],
+                     row['due_date'], row['updated_at'], row['course_id']) for row in rows]
+
+    @classmethod
+    def get_by_id(cls, content_id):
+        conn = get_connection()
+        row = conn.execute(
+            "SELECT * FROM content WHERE id = ?", (content_id,)
+        ).fetchone()
+        conn.close()
+        if row is None:
+            return None
+        return cls(row['id'], row['title'], row['notes'], row['status'],
+                    row['due_date'], row['updated_at'], row['course_id'])
+
+    def update(self, title, notes, status, due_date):
+        updated_at = datetime.utcnow().isoformat()
+        conn = get_connection()
+        conn.execute(
+            "UPDATE content SET title = ?, notes = ?, status = ?, due_date = ?, updated_at = ? "
+            "WHERE id = ?",
+            (title, notes, status, due_date, updated_at, self.id)
+        )
+        conn.commit()
+        conn.close()
+        self.title = title
+        self.notes = notes
+        self.status = status
+        self.due_date = due_date
+        self.updated_at = updated_at
+
+    def delete(self):
+        conn = get_connection()
+        conn.execute("DELETE FROM content WHERE id = ?", (self.id,))
         conn.commit()
         conn.close()

@@ -94,3 +94,26 @@ ul:not(.menu) li {
     padding: 12px;
     margin-bottom: 10px;
 }
+
+.status {
+    display: inline-block;
+    padding: 2px 8px;
+    border-radius: 10px;
+    font-size: 12px;
+    margin-left: 8px;
+}
+
+.status-NotStarted {
+    background: #eee;
+    color: #555;
+}
+
+.status-InProgress {
+    background: #fff3cd;
+    color: #856404;
+}
+
+.status-Completed {
+    background: #d4edda;
+    color: #155724;
+}
