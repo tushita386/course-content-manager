@@ -3,11 +3,12 @@
 {% block title %}Home{% endblock %}
 
 {% block content %}
-{% if role == 'mentor' %}
+{% if role == 'instructor' %}
     <h1>Welcome back, {{ name }}</h1>
-    <p>You're logged in as a mentor.</p>
+    <p>You're logged in as an instructor.</p>
     <ul class="menu">
         <li><a href="{{ url_for('main.add_student') }}">Add a Student</a></li>
+        <li><a href="{{ url_for('main.instructor_students') }}">My Students</a></li>
     </ul>
 
 {% elif role == 'student' %}
@@ -20,9 +21,9 @@
 
 {% else %}
     <h1>Course Content Manager</h1>
-    <p>A mentor-first tool to track course content, consistency, and progress.</p>
+    <p>An instructor-guided tool to track course content, consistency, and progress.</p>
     <ul class="menu">
-        <li><a href="{{ url_for('main.register_mentor') }}">Register as a Mentor</a></li>
+        <li><a href="{{ url_for('main.register_instructor') }}">Register as an Instructor</a></li>
         <li><a href="{{ url_for('main.login') }}">Login</a></li>
     </ul>
 {% endif %}

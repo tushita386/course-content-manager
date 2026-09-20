@@ -1,6 +1,6 @@
 from functools import wraps
 from flask import Blueprint, render_template, request, redirect, url_for, session
-from app.models import Mentor, Student, Course, Content, VALID_STATUSES, email_exists
+from app.models import Instructor, Student, Course, Task, VALID_STATUSES, email_exists
 
 main = Blueprint('main', __name__)
 
@@ -23,9 +23,9 @@ def home():
     role = session.get('role')
     name = None
 
-    if role == 'mentor':
-        mentor = Mentor.get_by_id(session['user_id'])
-        name = mentor.name if mentor else None
+    if role == 'instructor':
+        instructor = Instructor.get_by_id(session['user_id'])
+        name = instructor.name if instructor else None
     elif role == 'student':
         student = Student.get_by_id(session['user_id'])
         name = student.name if student else None
@@ -33,8 +33,8 @@ def home():
     return render_template('home.html', role=role, name=name)
 
 
-@main.route('/register/mentor', methods=['GET', 'POST'])
-def register_mentor():
+@main.route('/register/instructor', methods=['GET', 'POST'])
+def register_instructor():
     if request.method == 'POST':
         name = request.form.get('name', '').strip()
         email = request.form.get('email', '').strip().lower()
@@ -46,12 +46,12 @@ def register_mentor():
         if email_exists(email):
             return "An account with this email already exists.", 400
 
-        mentor = Mentor.create(name, email, password)
-        session['user_id'] = mentor.id
-        session['role'] = 'mentor'
+        instructor = Instructor.create(name, email, password)
+        session['user_id'] = instructor.id
+        session['role'] = 'instructor'
         return redirect(url_for('main.home'))
 
-    return render_template('register_mentor.html')
+    return render_template('register_instructor.html')
 
 
 @main.route('/login', methods=['GET', 'POST'])
@@ -60,10 +60,10 @@ def login():
         email = request.form.get('email', '').strip().lower()
         password = request.form.get('password', '')
 
-        mentor = Mentor.get_by_email(email)
-        if mentor and mentor.verify_password(password):
-            session['user_id'] = mentor.id
-            session['role'] = 'mentor'
+        instructor = Instructor.get_by_email(email)
+        if instructor and instructor.verify_password(password):
+            session['user_id'] = instructor.id
+            session['role'] = 'instructor'
             return redirect(url_for('main.home'))
 
         student = Student.get_by_email(email)
@@ -85,8 +85,8 @@ def logout():
     return redirect(url_for('main.login'))
 
 
-@main.route('/mentor/add-student', methods=['GET', 'POST'])
-@login_required(role='mentor')
+@main.route('/instructor/add-student', methods=['GET', 'POST'])
+@login_required(role='instructor')
 def add_student():
     if request.method == 'POST':
         name = request.form.get('name', '').strip()
@@ -99,8 +99,8 @@ def add_student():
         if email_exists(email):
             return "An account with this email already exists.", 400
 
-        mentor_id = session['user_id']
-        Student.create(name, email, password, mentor_id)
+        instructor_id = session['user_id']
+        Student.create(name, email, password, instructor_id)
         return redirect(url_for('main.home'))
 
     return render_template('add_student.html')
@@ -130,8 +130,19 @@ def select_semester():
 def list_courses():
     student_id = session['user_id']
     student = Student.get_by_id(student_id)
-    courses = Course.get_by_student(student_id)
-    return render_template('courses.html', courses=courses, student=student)
+
+    search = request.args.get('q', '').strip() or None
+    semester_raw = request.args.get('semester', '')
+    semester = int(semester_raw) if semester_raw.isdigit() else None
+
+    courses = Course.get_by_student(student_id, search=search, semester=semester)
+    return render_template(
+        'courses.html',
+        courses=courses,
+        student=student,
+        search=search or '',
+        selected_semester=semester
+    )
 
 
 @main.route('/courses/new', methods=['GET', 'POST'])
@@ -204,13 +215,19 @@ def course_detail(course_id):
     if course.student_id != session['user_id']:
         return "Access denied.", 403
 
-    content_items = Content.get_by_course(course_id)
-    return render_template('course_detail.html', course=course, content_items=content_items)
+    status_filter = request.args.get('status') or None
+    tasks = Task.get_by_course(course_id, status=status_filter)
+    return render_template(
+        'course_detail.html',
+        course=course,
+        tasks=tasks,
+        status_filter=status_filter or ''
+    )
 
 
-@main.route('/courses/<int:course_id>/content/new', methods=['GET', 'POST'])
+@main.route('/courses/<int:course_id>/tasks/new', methods=['GET', 'POST'])
 @login_required(role='student')
-def new_content(course_id):
+def new_task(course_id):
     course = Course.get_by_id(course_id)
 
     if course is None:
@@ -226,61 +243,119 @@ def new_content(course_id):
         due_date = request.form.get('due_date') or None
 
         if not title:
-            return "Content title is required.", 400
+            return "Task title is required.", 400
 
         if status not in VALID_STATUSES:
             return "Invalid status value.", 400
 
-        Content.create(title, notes, status, due_date, course_id)
+        Task.create(title, notes, status, due_date, course_id, created_by='student')
         return redirect(url_for('main.course_detail', course_id=course_id))
 
-    return render_template('content_form.html', course=course, content=None)
+    return render_template('task_form.html', course=course, task=None, restricted=False)
 
 
-@main.route('/content/<int:content_id>/edit', methods=['GET', 'POST'])
+@main.route('/tasks/<int:task_id>/edit', methods=['GET', 'POST'])
 @login_required(role='student')
-def edit_content(content_id):
-    content = Content.get_by_id(content_id)
+def edit_task(task_id):
+    task = Task.get_by_id(task_id)
 
-    if content is None:
-        return "Content not found.", 404
+    if task is None:
+        return "Task not found.", 404
 
-    course = Course.get_by_id(content.course_id)
+    course = Course.get_by_id(task.course_id)
 
     if course is None or course.student_id != session['user_id']:
+        return "Access denied.", 403
+
+    # A student can only change the status of a task the instructor assigned —
+    # title, notes and due_date stay locked, since the instructor authored them.
+    restricted = (task.created_by == 'instructor')
+
+    if request.method == 'POST':
+        status = request.form.get('status', 'Not Started')
+
+        if status not in VALID_STATUSES:
+            return "Invalid status value.", 400
+
+        if restricted:
+            task.update_status(status)
+            return redirect(url_for('main.course_detail', course_id=course.id))
+
+        title = request.form.get('title', '').strip()
+        notes = request.form.get('notes', '').strip()
+        due_date = request.form.get('due_date') or None
+
+        if not title:
+            return "Task title is required.", 400
+
+        task.update(title, notes, status, due_date)
+        return redirect(url_for('main.course_detail', course_id=course.id))
+
+    return render_template('task_form.html', course=course, task=task, restricted=restricted)
+
+
+@main.route('/tasks/<int:task_id>/delete', methods=['POST'])
+@login_required(role='student')
+def delete_task(task_id):
+    task = Task.get_by_id(task_id)
+
+    if task is None:
+        return "Task not found.", 404
+
+    course = Course.get_by_id(task.course_id)
+
+    if course is None or course.student_id != session['user_id']:
+        return "Access denied.", 403
+
+    if task.created_by == 'instructor':
+        return "You can't delete a task assigned by your instructor.", 403
+
+    course_id = course.id
+    task.delete()
+    return redirect(url_for('main.course_detail', course_id=course_id))
+
+
+@main.route('/instructor/students')
+@login_required(role='instructor')
+def instructor_students():
+    students = Student.get_by_instructor(session['user_id'])
+    return render_template('instructor_students.html', students=students)
+
+
+@main.route('/instructor/students/<int:student_id>/courses')
+@login_required(role='instructor')
+def instructor_student_courses(student_id):
+    student = Student.get_by_id(student_id)
+
+    if student is None or student.instructor_id != session['user_id']:
+        return "Access denied.", 403
+
+    courses = Course.get_by_student(student_id)
+    return render_template('instructor_student_courses.html', student=student, courses=courses)
+
+
+@main.route('/instructor/courses/<int:course_id>/assign-task', methods=['GET', 'POST'])
+@login_required(role='instructor')
+def assign_task(course_id):
+    course = Course.get_by_id(course_id)
+
+    if course is None:
+        return "Course not found.", 404
+
+    student = Student.get_by_id(course.student_id)
+
+    if student is None or student.instructor_id != session['user_id']:
         return "Access denied.", 403
 
     if request.method == 'POST':
         title = request.form.get('title', '').strip()
         notes = request.form.get('notes', '').strip()
-        status = request.form.get('status', 'Not Started')
         due_date = request.form.get('due_date') or None
 
         if not title:
-            return "Content title is required.", 400
+            return "Task title is required.", 400
 
-        if status not in VALID_STATUSES:
-            return "Invalid status value.", 400
+        Task.create(title, notes, 'Not Started', due_date, course_id, created_by='instructor')
+        return redirect(url_for('main.instructor_student_courses', student_id=student.id))
 
-        content.update(title, notes, status, due_date)
-        return redirect(url_for('main.course_detail', course_id=course.id))
-
-    return render_template('content_form.html', course=course, content=content)
-
-
-@main.route('/content/<int:content_id>/delete', methods=['POST'])
-@login_required(role='student')
-def delete_content(content_id):
-    content = Content.get_by_id(content_id)
-
-    if content is None:
-        return "Content not found.", 404
-
-    course = Course.get_by_id(content.course_id)
-
-    if course is None or course.student_id != session['user_id']:
-        return "Access denied.", 403
-
-    course_id = course.id
-    content.delete()
-    return redirect(url_for('main.course_detail', course_id=course_id))
+    return render_template('assign_task.html', course=course, student=student)

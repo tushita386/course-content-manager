@@ -1,0 +1,26 @@
+{% extends "base.html" %}
+
+{% block title %}My Students{% endblock %}
+
+{% block content %}
+<h1>My Students</h1>
+
+<ul>
+    {% for student in students %}
+    <li>
+        <strong>{{ student.name }}</strong> — {{ student.email }}
+        {% if student.current_semester %}
+            <br>Semester {{ student.current_semester }}
+        {% else %}
+            <br>No semester set yet
+        {% endif %}
+        <br>
+        <a href="{{ url_for('main.instructor_student_courses', student_id=student.id) }}">View Courses</a>
+    </li>
+    {% else %}
+    <p>You haven't added any students yet.</p>
+    {% endfor %}
+</ul>
+
+<a href="{{ url_for('main.add_student') }}">+ Add Student</a>
+{% endblock %}

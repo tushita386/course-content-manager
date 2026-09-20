@@ -16,6 +16,20 @@
 
 <a href="{{ url_for('main.new_course') }}">+ Add New Course</a>
 
+<form method="GET" class="filter-bar">
+    <input type="text" name="q" placeholder="Search by title or subject" value="{{ search }}">
+    <select name="semester">
+        <option value="">All Semesters</option>
+        {% for s in range(1, 9) %}
+        <option value="{{ s }}" {% if selected_semester == s %}selected{% endif %}>Semester {{ s }}</option>
+        {% endfor %}
+    </select>
+    <button type="submit">Search</button>
+    {% if search or selected_semester %}
+    <a href="{{ url_for('main.list_courses') }}">Clear</a>
+    {% endif %}
+</form>
+
 <ul>
     {% for course in courses %}
     <li>
@@ -32,7 +46,7 @@
         </form>
     </li>
     {% else %}
-    <p>You have no courses yet.</p>
+    <p>No courses match your search.</p>
     {% endfor %}
 </ul>
 {% endblock %}

@@ -9,24 +9,42 @@
     {% if course.semester %} · Semester {{ course.semester }}{% endif %}
 </p>
 
-<a href="{{ url_for('main.new_content', course_id=course.id) }}">+ Add Content</a>
+<a href="{{ url_for('main.new_task', course_id=course.id) }}">+ Add Task</a>
+
+<form method="GET" class="filter-bar">
+    <select name="status" onchange="this.form.submit()">
+        <option value="" {% if status_filter == '' %}selected{% endif %}>All Statuses</option>
+        <option value="Not Started" {% if status_filter == 'Not Started' %}selected{% endif %}>Not Started</option>
+        <option value="In Progress" {% if status_filter == 'In Progress' %}selected{% endif %}>In Progress</option>
+        <option value="Completed" {% if status_filter == 'Completed' %}selected{% endif %}>Completed</option>
+    </select>
+</form>
 
 <ul>
-    {% for item in content_items %}
+    {% for item in tasks %}
     <li>
         <strong>{{ item.title }}</strong>
         <span class="status status-{{ item.status | replace(' ', '') }}">{{ item.status }}</span>
+        {% if item.created_by == 'instructor' %}
+            <span class="badge badge-instructor">Assigned by Instructor</span>
+        {% else %}
+            <span class="badge badge-student">My Note</span>
+        {% endif %}
         {% if item.due_date %}<br>Due: {{ item.due_date }}{% endif %}
         {% if item.notes %}<br>{{ item.notes }}{% endif %}
         <br>
-        <a href="{{ url_for('main.edit_content', content_id=item.id) }}">Edit</a>
+        <a href="{{ url_for('main.edit_task', task_id=item.id) }}">
+            {% if item.created_by == 'instructor' %}Update Status{% else %}Edit{% endif %}
+        </a>
 
-        <form method="POST" action="{{ url_for('main.delete_content', content_id=item.id) }}" style="display:inline;">
+        {% if item.created_by != 'instructor' %}
+        <form method="POST" action="{{ url_for('main.delete_task', task_id=item.id) }}" style="display:inline;">
             <button type="submit" onclick="return confirm('Delete this item?')">Delete</button>
         </form>
+        {% endif %}
     </li>
     {% else %}
-    <p>No content added yet for this course.</p>
+    <p>No tasks match this filter.</p>
     {% endfor %}
 </ul>
 
