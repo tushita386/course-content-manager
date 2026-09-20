@@ -5,7 +5,7 @@
 {% block content %}
 <h1>{{ student.name }}'s Courses</h1>
 
-<ul>
+<ul class="plain-list">
     {% for course in courses %}
     <li>
         <strong>{{ course.title }}</strong>
@@ -15,7 +15,7 @@
         <a href="{{ url_for('main.assign_task', course_id=course.id) }}">+ Assign a Task</a>
     </li>
     {% else %}
-    <p>This student hasn't set up any courses yet.</p>
+    <p class="empty-state">This student hasn't set up any courses yet.</p>
     {% endfor %}
 </ul>
 

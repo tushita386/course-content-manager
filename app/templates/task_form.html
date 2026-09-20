@@ -10,6 +10,7 @@
 <p>This task was assigned by your instructor. You can update its status, but the title, notes, and due date can't be changed.</p>
 {% endif %}
 
+<div class="form-card">
 <form method="POST">
     <label>Title</label>
     {% if restricted %}
@@ -41,6 +42,7 @@
 
     <button type="submit">Save</button>
 </form>
+</div>
 
 <a href="{{ url_for('main.course_detail', course_id=course.id) }}">Back to {{ course.title }}</a>
 {% endblock %}

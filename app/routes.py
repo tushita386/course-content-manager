@@ -136,12 +136,21 @@ def list_courses():
     semester = int(semester_raw) if semester_raw.isdigit() else None
 
     courses = Course.get_by_student(student_id, search=search, semester=semester)
+
+    progress = {}
+    for course in courses:
+        course_tasks = Task.get_by_course(course.id)
+        total = len(course_tasks)
+        completed = sum(1 for t in course_tasks if t.status == 'Completed')
+        progress[course.id] = (completed, total)
+
     return render_template(
         'courses.html',
         courses=courses,
         student=student,
         search=search or '',
-        selected_semester=semester
+        selected_semester=semester,
+        progress=progress
     )
 
 

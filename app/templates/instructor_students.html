@@ -5,7 +5,7 @@
 {% block content %}
 <h1>My Students</h1>
 
-<ul>
+<ul class="plain-list">
     {% for student in students %}
     <li>
         <strong>{{ student.name }}</strong> — {{ student.email }}
@@ -18,9 +18,9 @@
         <a href="{{ url_for('main.instructor_student_courses', student_id=student.id) }}">View Courses</a>
     </li>
     {% else %}
-    <p>You haven't added any students yet.</p>
+    <p class="empty-state">You haven't added any students yet.</p>
     {% endfor %}
 </ul>
 
-<a href="{{ url_for('main.add_student') }}">+ Add Student</a>
+<a href="{{ url_for('main.add_student') }}" class="btn btn-primary">+ Add Student</a>
 {% endblock %}
