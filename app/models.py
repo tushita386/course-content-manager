@@ -316,7 +316,7 @@ class Task:
 
     @classmethod
     def create(cls, title, notes, status, due_date, course_id, created_by='student'):
-        updated_at = datetime.utcnow().isoformat()
+        updated_at = datetime.now().isoformat()
         conn = get_connection()
         cursor = conn.execute(
             "INSERT INTO tasks (title, notes, status, due_date, updated_at, created_by, course_id) "
@@ -361,7 +361,7 @@ class Task:
         """Full update — used for the student's own tasks, and by the instructor
         editing a task they assigned. Not used for a student updating an
         instructor-assigned task; see update_status() for that restricted case."""
-        updated_at = datetime.utcnow().isoformat()
+        updated_at = datetime.now().isoformat()
         conn = get_connection()
         conn.execute(
             "UPDATE tasks SET title = ?, notes = ?, status = ?, due_date = ?, updated_at = ? "
@@ -379,7 +379,7 @@ class Task:
     def update_status(self, status):
         """Restricted update — a student can only change the status of a task
         the instructor assigned to them; title/notes/due_date stay locked."""
-        updated_at = datetime.utcnow().isoformat()
+        updated_at = datetime.now().isoformat()
         conn = get_connection()
         conn.execute(
             "UPDATE tasks SET status = ?, updated_at = ? WHERE id = ?",

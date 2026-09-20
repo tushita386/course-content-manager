@@ -4,6 +4,21 @@ from app.models import Instructor, Student, Course, Task, VALID_STATUSES, email_
 
 main = Blueprint('main', __name__)
 
+ERROR_HEADINGS = {
+    400: 'Invalid Request',
+    401: 'Login Required',
+    403: 'Access Denied',
+    404: 'Not Found',
+    500: 'Something Went Wrong',
+}
+
+
+def error_response(message, code):
+    """Renders a proper, styled error page instead of returning raw text —
+    used everywhere a route needs to reject a request with a specific reason."""
+    heading = ERROR_HEADINGS.get(code, 'Error')
+    return render_template('error.html', message=message, code=code, heading=heading), code
+
 
 def login_required(role=None):
     def decorator(f):
@@ -12,7 +27,7 @@ def login_required(role=None):
             if 'user_id' not in session:
                 return redirect(url_for('main.login'))
             if role and session.get('role') != role:
-                return "Access denied.", 403
+                return error_response("You don't have permission to view this page.", 403)
             return f(*args, **kwargs)
         return decorated_function
     return decorator
@@ -41,10 +56,10 @@ def register_instructor():
         password = request.form.get('password', '')
 
         if not name or not email or not password:
-            return "All fields are required.", 400
+            return error_response("All fields are required.", 400)
 
         if email_exists(email):
-            return "An account with this email already exists.", 400
+            return error_response("An account with this email already exists.", 400)
 
         instructor = Instructor.create(name, email, password)
         session['user_id'] = instructor.id
@@ -74,7 +89,7 @@ def login():
                 return redirect(url_for('main.select_semester'))
             return redirect(url_for('main.home'))
 
-        return "Invalid email or password.", 401
+        return error_response("Invalid email or password.", 401)
 
     return render_template('login.html')
 
@@ -94,10 +109,10 @@ def add_student():
         password = request.form.get('password', '')
 
         if not name or not email or not password:
-            return "All fields are required.", 400
+            return error_response("All fields are required.", 400)
 
         if email_exists(email):
-            return "An account with this email already exists.", 400
+            return error_response("An account with this email already exists.", 400)
 
         instructor_id = session['user_id']
         Student.create(name, email, password, instructor_id)
@@ -115,9 +130,16 @@ def select_semester():
         semester = request.form.get('semester')
 
         if not semester:
-            return "Please select a semester.", 400
+            return error_response("Please select a semester.", 400)
 
-        semester = int(semester)
+        try:
+            semester = int(semester)
+        except ValueError:
+            return error_response("Semester must be a number.", 400)
+
+        if semester < 1 or semester > 8:
+            return error_response("Semester must be between 1 and 8.", 400)
+
         student.update_semester(semester)
         Course.auto_create_for_semester(student.id, semester)
         return redirect(url_for('main.list_courses'))
@@ -164,7 +186,7 @@ def new_course():
         semester = request.form.get('semester') or None
 
         if not title:
-            return "Course title is required.", 400
+            return error_response("Course title is required.", 400)
 
         Course.create(title, description, subject, semester, session['user_id'])
         return redirect(url_for('main.list_courses'))
@@ -178,10 +200,10 @@ def edit_course(course_id):
     course = Course.get_by_id(course_id)
 
     if course is None:
-        return "Course not found.", 404
+        return error_response("Course not found.", 404)
 
     if course.student_id != session['user_id']:
-        return "Access denied.", 403
+        return error_response("Access denied.", 403)
 
     if request.method == 'POST':
         title = request.form.get('title', '').strip()
@@ -190,7 +212,7 @@ def edit_course(course_id):
         semester = request.form.get('semester') or None
 
         if not title:
-            return "Course title is required.", 400
+            return error_response("Course title is required.", 400)
 
         course.update(title, description, subject, semester)
         return redirect(url_for('main.list_courses'))
@@ -204,10 +226,10 @@ def delete_course(course_id):
     course = Course.get_by_id(course_id)
 
     if course is None:
-        return "Course not found.", 404
+        return error_response("Course not found.", 404)
 
     if course.student_id != session['user_id']:
-        return "Access denied.", 403
+        return error_response("Access denied.", 403)
 
     course.delete()
     return redirect(url_for('main.list_courses'))
@@ -219,10 +241,10 @@ def course_detail(course_id):
     course = Course.get_by_id(course_id)
 
     if course is None:
-        return "Course not found.", 404
+        return error_response("Course not found.", 404)
 
     if course.student_id != session['user_id']:
-        return "Access denied.", 403
+        return error_response("Access denied.", 403)
 
     status_filter = request.args.get('status') or None
     tasks = Task.get_by_course(course_id, status=status_filter)
@@ -240,10 +262,10 @@ def new_task(course_id):
     course = Course.get_by_id(course_id)
 
     if course is None:
-        return "Course not found.", 404
+        return error_response("Course not found.", 404)
 
     if course.student_id != session['user_id']:
-        return "Access denied.", 403
+        return error_response("Access denied.", 403)
 
     if request.method == 'POST':
         title = request.form.get('title', '').strip()
@@ -252,10 +274,10 @@ def new_task(course_id):
         due_date = request.form.get('due_date') or None
 
         if not title:
-            return "Task title is required.", 400
+            return error_response("Task title is required.", 400)
 
         if status not in VALID_STATUSES:
-            return "Invalid status value.", 400
+            return error_response("Invalid status value.", 400)
 
         Task.create(title, notes, status, due_date, course_id, created_by='student')
         return redirect(url_for('main.course_detail', course_id=course_id))
@@ -269,12 +291,12 @@ def edit_task(task_id):
     task = Task.get_by_id(task_id)
 
     if task is None:
-        return "Task not found.", 404
+        return error_response("Task not found.", 404)
 
     course = Course.get_by_id(task.course_id)
 
     if course is None or course.student_id != session['user_id']:
-        return "Access denied.", 403
+        return error_response("Access denied.", 403)
 
     # A student can only change the status of a task the instructor assigned —
     # title, notes and due_date stay locked, since the instructor authored them.
@@ -284,7 +306,7 @@ def edit_task(task_id):
         status = request.form.get('status', 'Not Started')
 
         if status not in VALID_STATUSES:
-            return "Invalid status value.", 400
+            return error_response("Invalid status value.", 400)
 
         if restricted:
             task.update_status(status)
@@ -295,7 +317,7 @@ def edit_task(task_id):
         due_date = request.form.get('due_date') or None
 
         if not title:
-            return "Task title is required.", 400
+            return error_response("Task title is required.", 400)
 
         task.update(title, notes, status, due_date)
         return redirect(url_for('main.course_detail', course_id=course.id))
@@ -309,15 +331,15 @@ def delete_task(task_id):
     task = Task.get_by_id(task_id)
 
     if task is None:
-        return "Task not found.", 404
+        return error_response("Task not found.", 404)
 
     course = Course.get_by_id(task.course_id)
 
     if course is None or course.student_id != session['user_id']:
-        return "Access denied.", 403
+        return error_response("Access denied.", 403)
 
     if task.created_by == 'instructor':
-        return "You can't delete a task assigned by your instructor.", 403
+        return error_response("You can't delete a task assigned by your instructor.", 403)
 
     course_id = course.id
     task.delete()
@@ -338,7 +360,7 @@ def instructor_student_courses(student_id):
     student = Student.get_by_id(student_id)
 
     if student is None or student.instructor_id != session['user_id']:
-        return "Access denied.", 403
+        return error_response("Access denied.", 403)
 
     courses = Course.get_by_student(student_id)
     return render_template('instructor_student_courses.html', student=student, courses=courses)
@@ -350,12 +372,12 @@ def assign_task(course_id):
     course = Course.get_by_id(course_id)
 
     if course is None:
-        return "Course not found.", 404
+        return error_response("Course not found.", 404)
 
     student = Student.get_by_id(course.student_id)
 
     if student is None or student.instructor_id != session['user_id']:
-        return "Access denied.", 403
+        return error_response("Access denied.", 403)
 
     if request.method == 'POST':
         title = request.form.get('title', '').strip()
@@ -363,7 +385,7 @@ def assign_task(course_id):
         due_date = request.form.get('due_date') or None
 
         if not title:
-            return "Task title is required.", 400
+            return error_response("Task title is required.", 400)
 
         Task.create(title, notes, 'Not Started', due_date, course_id, created_by='instructor')
         return redirect(url_for('main.instructor_student_courses', student_id=student.id))

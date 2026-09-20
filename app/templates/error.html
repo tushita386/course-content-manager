@@ -1,0 +1,12 @@
+{% extends "base.html" %}
+
+{% block title %}{{ code }} — {{ heading }}{% endblock %}
+
+{% block content %}
+<div class="form-card" style="text-align:center; margin: 60px auto;">
+    <p class="progress-label" style="font-size:13px; letter-spacing:0.05em;">ERROR {{ code }}</p>
+    <h1 style="margin-top:4px;">{{ heading }}</h1>
+    <p>{{ message }}</p>
+    <a href="{{ url_for('main.home') }}" class="btn btn-primary" style="margin-top:12px;">Back to Home</a>
+</div>
+{% endblock %}
