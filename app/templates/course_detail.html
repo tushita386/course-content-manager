@@ -9,24 +9,52 @@
     {% if course.semester %} · Semester {{ course.semester }}{% endif %}
 </p>
 
-<a href="{{ url_for('main.new_content', course_id=course.id) }}">+ Add Content</a>
+<div style="margin: 20px 0;">
+    <a href="{{ url_for('main.new_task', course_id=course.id) }}" class="btn btn-primary">+ Add Task</a>
+</div>
 
-<ul>
-    {% for item in content_items %}
-    <li>
-        <strong>{{ item.title }}</strong>
-        <span class="status status-{{ item.status | replace(' ', '') }}">{{ item.status }}</span>
-        {% if item.due_date %}<br>Due: {{ item.due_date }}{% endif %}
-        {% if item.notes %}<br>{{ item.notes }}{% endif %}
-        <br>
-        <a href="{{ url_for('main.edit_content', content_id=item.id) }}">Edit</a>
+<form method="GET" class="filter-bar">
+    <select name="status" onchange="this.form.submit()">
+        <option value="" {% if status_filter == '' %}selected{% endif %}>All Statuses</option>
+        <option value="Not Started" {% if status_filter == 'Not Started' %}selected{% endif %}>Not Started</option>
+        <option value="In Progress" {% if status_filter == 'In Progress' %}selected{% endif %}>In Progress</option>
+        <option value="Completed" {% if status_filter == 'Completed' %}selected{% endif %}>Completed</option>
+    </select>
+</form>
 
-        <form method="POST" action="{{ url_for('main.delete_content', content_id=item.id) }}" style="display:inline;">
-            <button type="submit" onclick="return confirm('Delete this item?')">Delete</button>
-        </form>
+<ul class="task-list">
+    {% for item in tasks %}
+    {% set status_class = item.status | replace(' ', '') %}
+    <li class="task-item status-border-{{ status_class }}">
+        <div class="task-title-row">
+            <strong>{{ item.title }}</strong>
+            <span class="status status-{{ status_class }}">{{ item.status }}</span>
+            {% if item.created_by == 'instructor' %}
+                <span class="badge badge-instructor">Assigned by Instructor</span>
+            {% else %}
+                <span class="badge badge-student">My Note</span>
+            {% endif %}
+        </div>
+        {% if item.due_date or item.notes %}
+        <div class="task-meta">
+            {% if item.due_date %}Due {{ item.due_date }}{% endif %}
+            {% if item.due_date and item.notes %} · {% endif %}
+            {% if item.notes %}{{ item.notes }}{% endif %}
+        </div>
+        {% endif %}
+        <div class="task-actions">
+            <a href="{{ url_for('main.edit_task', task_id=item.id) }}">
+                {% if item.created_by == 'instructor' %}Update status{% else %}Edit{% endif %}
+            </a>
+            {% if item.created_by != 'instructor' %}
+            <form method="POST" action="{{ url_for('main.delete_task', task_id=item.id) }}">
+                <button type="submit" class="btn-danger" style="background:none;border:none;padding:0;font-size:13px;cursor:pointer;" onclick="return confirm('Delete this item?')">Delete</button>
+            </form>
+            {% endif %}
+        </div>
     </li>
     {% else %}
-    <p>No content added yet for this course.</p>
+    <p class="empty-state">No tasks match this filter.</p>
     {% endfor %}
 </ul>
 

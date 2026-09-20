@@ -1,0 +1,47 @@
+{% extends "base.html" %}
+
+{% block title %}My Students{% endblock %}
+
+{% block content %}
+<h1>My Students</h1>
+<p>An overview of each student's progress and consistency.</p>
+
+<ul class="plain-list">
+    {% for student in students %}
+    {% set s = stats[student.id] %}
+    <li>
+        <div class="task-title-row">
+            <strong>{{ student.name }}</strong>
+            {% if s.needs_attention %}
+                <span class="badge badge-attention">Needs Attention</span>
+            {% endif %}
+        </div>
+        <p class="course-meta" style="margin: 4px 0 10px;">
+            {{ student.email }}
+            {% if student.current_semester %} · Semester {{ student.current_semester }}{% else %} · No semester set{% endif %}
+        </p>
+
+        {% if s.total > 0 %}
+        <div class="progress-track">
+            <div class="progress-fill" style="width: {{ s.completion_pct }}%;"></div>
+        </div>
+        <p class="progress-label">
+            {{ s.completed }} of {{ s.total }} tasks completed ({{ s.completion_pct }}%)
+            · Active {{ s.active_days }}/14 days
+            {% if s.overdue > 0 %} · {{ s.overdue }} overdue{% endif %}
+        </p>
+        {% else %}
+        <p class="progress-label">No tasks tracked yet</p>
+        {% endif %}
+
+        <div class="course-card-actions">
+            <a href="{{ url_for('main.instructor_student_courses', student_id=student.id) }}" class="btn btn-secondary btn-sm">View Courses</a>
+        </div>
+    </li>
+    {% else %}
+    <p class="empty-state">You haven't added any students yet.</p>
+    {% endfor %}
+</ul>
+
+<a href="{{ url_for('main.add_student') }}" class="btn btn-primary">+ Add Student</a>
+{% endblock %}

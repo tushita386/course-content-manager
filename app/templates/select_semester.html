@@ -11,6 +11,7 @@
 <p>You're currently on Semester {{ current_semester }}. Moving to a new semester will add its courses without removing what you already have.</p>
 {% endif %}
 
+<div class="form-card">
 <form method="POST">
     <label>Semester</label>
     <select name="semester" required>
@@ -22,6 +23,7 @@
 
     <button type="submit">Save</button>
 </form>
+</div>
 
 {% if current_semester %}
 <a href="{{ url_for('main.list_courses') }}">Back to My Courses</a>

@@ -1,4 +1,4 @@
-CREATE TABLE IF NOT EXISTS mentors (
+CREATE TABLE IF NOT EXISTS instructors (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
     name TEXT NOT NULL,
     email TEXT NOT NULL UNIQUE,
@@ -10,9 +10,9 @@ CREATE TABLE IF NOT EXISTS students (
     name TEXT NOT NULL,
     email TEXT NOT NULL UNIQUE,
     password_hash TEXT NOT NULL,
-    mentor_id INTEGER NOT NULL,
+    instructor_id INTEGER NOT NULL,
     current_semester INTEGER,
-    FOREIGN KEY (mentor_id) REFERENCES mentors (id)
+    FOREIGN KEY (instructor_id) REFERENCES instructors (id)
 );
 
 CREATE TABLE IF NOT EXISTS courses (
@@ -25,13 +25,14 @@ CREATE TABLE IF NOT EXISTS courses (
     FOREIGN KEY (student_id) REFERENCES students (id)
 );
 
-CREATE TABLE IF NOT EXISTS content (
+CREATE TABLE IF NOT EXISTS tasks (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
     title TEXT NOT NULL,
     notes TEXT,
     status TEXT NOT NULL DEFAULT 'Not Started',
     due_date TEXT,
     updated_at TEXT NOT NULL,
+    created_by TEXT NOT NULL DEFAULT 'student',
     course_id INTEGER NOT NULL,
     FOREIGN KEY (course_id) REFERENCES courses (id)
 );

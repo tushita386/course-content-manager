@@ -1,9 +1,9 @@
-from datetime import datetime
+from datetime import datetime, date, timedelta
 from werkzeug.security import generate_password_hash, check_password_hash
 from app.database import get_connection
 
 
-class Mentor:
+class Instructor:
     def __init__(self, id, name, email, password_hash):
         self.id = id
         self.name = name
@@ -15,7 +15,7 @@ class Mentor:
         password_hash = generate_password_hash(password)
         conn = get_connection()
         cursor = conn.execute(
-            "INSERT INTO mentors (name, email, password_hash) VALUES (?, ?, ?)",
+            "INSERT INTO instructors (name, email, password_hash) VALUES (?, ?, ?)",
             (name, email, password_hash)
         )
         conn.commit()
@@ -27,7 +27,7 @@ class Mentor:
     def get_by_email(cls, email):
         conn = get_connection()
         row = conn.execute(
-            "SELECT * FROM mentors WHERE email = ?", (email,)
+            "SELECT * FROM instructors WHERE email = ?", (email,)
         ).fetchone()
         conn.close()
         if row is None:
@@ -35,10 +35,10 @@ class Mentor:
         return cls(row['id'], row['name'], row['email'], row['password_hash'])
 
     @classmethod
-    def get_by_id(cls, mentor_id):
+    def get_by_id(cls, instructor_id):
         conn = get_connection()
         row = conn.execute(
-            "SELECT * FROM mentors WHERE id = ?", (mentor_id,)
+            "SELECT * FROM instructors WHERE id = ?", (instructor_id,)
         ).fetchone()
         conn.close()
         if row is None:
@@ -48,7 +48,7 @@ class Mentor:
     @classmethod
     def get_all(cls):
         conn = get_connection()
-        rows = conn.execute("SELECT * FROM mentors").fetchall()
+        rows = conn.execute("SELECT * FROM instructors").fetchall()
         conn.close()
         return [cls(row['id'], row['name'], row['email'], row['password_hash']) for row in rows]
 
@@ -57,26 +57,26 @@ class Mentor:
 
 
 class Student:
-    def __init__(self, id, name, email, password_hash, mentor_id, current_semester=None):
+    def __init__(self, id, name, email, password_hash, instructor_id, current_semester=None):
         self.id = id
         self.name = name
         self.email = email
         self.password_hash = password_hash
-        self.mentor_id = mentor_id
+        self.instructor_id = instructor_id
         self.current_semester = current_semester
 
     @classmethod
-    def create(cls, name, email, password, mentor_id):
+    def create(cls, name, email, password, instructor_id):
         password_hash = generate_password_hash(password)
         conn = get_connection()
         cursor = conn.execute(
-            "INSERT INTO students (name, email, password_hash, mentor_id) VALUES (?, ?, ?, ?)",
-            (name, email, password_hash, mentor_id)
+            "INSERT INTO students (name, email, password_hash, instructor_id) VALUES (?, ?, ?, ?)",
+            (name, email, password_hash, instructor_id)
         )
         conn.commit()
         new_id = cursor.lastrowid
         conn.close()
-        return cls(new_id, name, email, password_hash, mentor_id, None)
+        return cls(new_id, name, email, password_hash, instructor_id, None)
 
     @classmethod
     def get_by_email(cls, email):
@@ -88,7 +88,7 @@ class Student:
         if row is None:
             return None
         return cls(row['id'], row['name'], row['email'], row['password_hash'],
-                    row['mentor_id'], row['current_semester'])
+                    row['instructor_id'], row['current_semester'])
 
     @classmethod
     def get_by_id(cls, student_id):
@@ -100,17 +100,17 @@ class Student:
         if row is None:
             return None
         return cls(row['id'], row['name'], row['email'], row['password_hash'],
-                    row['mentor_id'], row['current_semester'])
+                    row['instructor_id'], row['current_semester'])
 
     @classmethod
-    def get_by_mentor(cls, mentor_id):
+    def get_by_instructor(cls, instructor_id):
         conn = get_connection()
         rows = conn.execute(
-            "SELECT * FROM students WHERE mentor_id = ?", (mentor_id,)
+            "SELECT * FROM students WHERE instructor_id = ?", (instructor_id,)
         ).fetchall()
         conn.close()
         return [cls(row['id'], row['name'], row['email'], row['password_hash'],
-                     row['mentor_id'], row['current_semester']) for row in rows]
+                     row['instructor_id'], row['current_semester']) for row in rows]
 
     def verify_password(self, password):
         return check_password_hash(self.password_hash, password)
@@ -125,10 +125,70 @@ class Student:
         conn.close()
         self.current_semester = semester
 
+    def get_progress_stats(self):
+        """
+        Aggregates this student's progress by walking Student -> Course -> Task.
+        Computed fresh each time rather than stored, so it's always accurate —
+        no risk of a cached number going stale as tasks change.
+
+        Returns:
+            total: total number of tasks across all this student's courses
+            completed: how many of those are marked 'Completed'
+            completion_pct: completed/total as a rounded percentage
+            overdue: tasks with a due_date in the past that aren't Completed
+            active_days: distinct days in the last 14 this student updated
+                         any task's status — the consistency indicator
+            needs_attention: True when overdue >= 2, a simple, explainable
+                              threshold for flagging a student who may need support
+        """
+        courses = Course.get_by_student(self.id)
+
+        total = 0
+        completed = 0
+        overdue = 0
+        active_dates = set()
+
+        today = date.today()
+        cutoff = today - timedelta(days=14)
+
+        for course in courses:
+            for task in Task.get_by_course(course.id):
+                total += 1
+
+                if task.status == 'Completed':
+                    completed += 1
+
+                if task.due_date and task.status != 'Completed':
+                    try:
+                        due = datetime.strptime(task.due_date, '%Y-%m-%d').date()
+                        if due < today:
+                            overdue += 1
+                    except ValueError:
+                        pass
+
+                if task.updated_at:
+                    try:
+                        updated_date = datetime.fromisoformat(task.updated_at).date()
+                        if updated_date >= cutoff:
+                            active_dates.add(updated_date)
+                    except ValueError:
+                        pass
+
+        completion_pct = round((completed / total) * 100) if total else 0
+
+        return {
+            'total': total,
+            'completed': completed,
+            'completion_pct': completion_pct,
+            'overdue': overdue,
+            'active_days': len(active_dates),
+            'needs_attention': overdue >= 2,
+        }
+
 
 def email_exists(email):
     """Cross-table uniqueness check — used during registration."""
-    return Mentor.get_by_email(email) is not None or Student.get_by_email(email) is not None
+    return Instructor.get_by_email(email) is not None or Student.get_by_email(email) is not None
 
 
 class Course:
@@ -153,11 +213,23 @@ class Course:
         return cls(new_id, title, description, subject, semester, student_id)
 
     @classmethod
-    def get_by_student(cls, student_id):
+    def get_by_student(cls, student_id, search=None, semester=None):
+        query = "SELECT * FROM courses WHERE student_id = ?"
+        params = [student_id]
+
+        if search:
+            query += " AND (title LIKE ? OR subject LIKE ?)"
+            like_pattern = f"%{search}%"
+            params.extend([like_pattern, like_pattern])
+
+        if semester:
+            query += " AND semester = ?"
+            params.append(semester)
+
+        query += " ORDER BY semester, title"
+
         conn = get_connection()
-        rows = conn.execute(
-            "SELECT * FROM courses WHERE student_id = ?", (student_id,)
-        ).fetchall()
+        rows = conn.execute(query, params).fetchall()
         conn.close()
         return [cls(row['id'], row['title'], row['description'], row['subject'],
                      row['semester'], row['student_id']) for row in rows]
@@ -231,58 +303,68 @@ class Course:
 VALID_STATUSES = ('Not Started', 'In Progress', 'Completed')
 
 
-class Content:
-    def __init__(self, id, title, notes, status, due_date, updated_at, course_id):
+class Task:
+    def __init__(self, id, title, notes, status, due_date, updated_at, created_by, course_id):
         self.id = id
         self.title = title
         self.notes = notes
         self.status = status
         self.due_date = due_date
         self.updated_at = updated_at
+        self.created_by = created_by
         self.course_id = course_id
 
     @classmethod
-    def create(cls, title, notes, status, due_date, course_id):
+    def create(cls, title, notes, status, due_date, course_id, created_by='student'):
         updated_at = datetime.utcnow().isoformat()
         conn = get_connection()
         cursor = conn.execute(
-            "INSERT INTO content (title, notes, status, due_date, updated_at, course_id) "
-            "VALUES (?, ?, ?, ?, ?, ?)",
-            (title, notes, status, due_date, updated_at, course_id)
+            "INSERT INTO tasks (title, notes, status, due_date, updated_at, created_by, course_id) "
+            "VALUES (?, ?, ?, ?, ?, ?, ?)",
+            (title, notes, status, due_date, updated_at, created_by, course_id)
         )
         conn.commit()
         new_id = cursor.lastrowid
         conn.close()
-        return cls(new_id, title, notes, status, due_date, updated_at, course_id)
+        return cls(new_id, title, notes, status, due_date, updated_at, created_by, course_id)
 
     @classmethod
-    def get_by_course(cls, course_id):
+    def get_by_course(cls, course_id, status=None):
+        query = "SELECT * FROM tasks WHERE course_id = ?"
+        params = [course_id]
+
+        if status:
+            query += " AND status = ?"
+            params.append(status)
+
+        query += " ORDER BY due_date IS NULL, due_date"
+
         conn = get_connection()
-        rows = conn.execute(
-            "SELECT * FROM content WHERE course_id = ? ORDER BY due_date IS NULL, due_date",
-            (course_id,)
-        ).fetchall()
+        rows = conn.execute(query, params).fetchall()
         conn.close()
-        return [cls(row['id'], row['title'], row['notes'], row['status'],
-                     row['due_date'], row['updated_at'], row['course_id']) for row in rows]
+        return [cls(row['id'], row['title'], row['notes'], row['status'], row['due_date'],
+                     row['updated_at'], row['created_by'], row['course_id']) for row in rows]
 
     @classmethod
-    def get_by_id(cls, content_id):
+    def get_by_id(cls, task_id):
         conn = get_connection()
         row = conn.execute(
-            "SELECT * FROM content WHERE id = ?", (content_id,)
+            "SELECT * FROM tasks WHERE id = ?", (task_id,)
         ).fetchone()
         conn.close()
         if row is None:
             return None
-        return cls(row['id'], row['title'], row['notes'], row['status'],
-                    row['due_date'], row['updated_at'], row['course_id'])
+        return cls(row['id'], row['title'], row['notes'], row['status'], row['due_date'],
+                    row['updated_at'], row['created_by'], row['course_id'])
 
     def update(self, title, notes, status, due_date):
+        """Full update — used for the student's own tasks, and by the instructor
+        editing a task they assigned. Not used for a student updating an
+        instructor-assigned task; see update_status() for that restricted case."""
         updated_at = datetime.utcnow().isoformat()
         conn = get_connection()
         conn.execute(
-            "UPDATE content SET title = ?, notes = ?, status = ?, due_date = ?, updated_at = ? "
+            "UPDATE tasks SET title = ?, notes = ?, status = ?, due_date = ?, updated_at = ? "
             "WHERE id = ?",
             (title, notes, status, due_date, updated_at, self.id)
         )
@@ -294,8 +376,22 @@ class Content:
         self.due_date = due_date
         self.updated_at = updated_at
 
+    def update_status(self, status):
+        """Restricted update — a student can only change the status of a task
+        the instructor assigned to them; title/notes/due_date stay locked."""
+        updated_at = datetime.utcnow().isoformat()
+        conn = get_connection()
+        conn.execute(
+            "UPDATE tasks SET status = ?, updated_at = ? WHERE id = ?",
+            (status, updated_at, self.id)
+        )
+        conn.commit()
+        conn.close()
+        self.status = status
+        self.updated_at = updated_at
+
     def delete(self):
         conn = get_connection()
-        conn.execute("DELETE FROM content WHERE id = ?", (self.id,))
+        conn.execute("DELETE FROM tasks WHERE id = ?", (self.id,))
         conn.commit()
         conn.close()

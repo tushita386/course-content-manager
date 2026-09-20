@@ -1,0 +1,23 @@
+{% extends "base.html" %}
+
+{% block title %}{{ student.name }}'s Courses{% endblock %}
+
+{% block content %}
+<h1>{{ student.name }}'s Courses</h1>
+
+<ul class="plain-list">
+    {% for course in courses %}
+    <li>
+        <strong>{{ course.title }}</strong>
+        {% if course.subject %} — {{ course.subject }}{% endif %}
+        {% if course.semester %} (Semester {{ course.semester }}){% endif %}
+        <br>
+        <a href="{{ url_for('main.assign_task', course_id=course.id) }}">+ Assign a Task</a>
+    </li>
+    {% else %}
+    <p class="empty-state">This student hasn't set up any courses yet.</p>
+    {% endfor %}
+</ul>
+
+<a href="{{ url_for('main.instructor_students') }}">Back to My Students</a>
+{% endblock %}

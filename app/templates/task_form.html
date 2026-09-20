@@ -1,0 +1,48 @@
+{% extends "base.html" %}
+
+{% block title %}{% if task %}Edit Task{% else %}New Task{% endif %}{% endblock %}
+
+{% block content %}
+<h1>{% if task %}Edit Task{% else %}Add Task{% endif %} — {{ course.title }}</h1>
+
+{% if restricted %}
+<p class="badge badge-instructor">Assigned by Instructor</p>
+<p>This task was assigned by your instructor. You can update its status, but the title, notes, and due date can't be changed.</p>
+{% endif %}
+
+<div class="form-card">
+<form method="POST">
+    <label>Title</label>
+    {% if restricted %}
+        <input type="text" value="{{ task.title }}" disabled>
+    {% else %}
+        <input type="text" name="title" value="{{ task.title if task else '' }}" required>
+    {% endif %}
+
+    <label>Status</label>
+    <select name="status">
+        <option value="Not Started" {% if task and task.status == 'Not Started' %}selected{% endif %}>Not Started</option>
+        <option value="In Progress" {% if task and task.status == 'In Progress' %}selected{% endif %}>In Progress</option>
+        <option value="Completed" {% if task and task.status == 'Completed' %}selected{% endif %}>Completed</option>
+    </select>
+
+    <label>Due Date</label>
+    {% if restricted %}
+        <input type="date" value="{{ task.due_date if task.due_date else '' }}" disabled>
+    {% else %}
+        <input type="date" name="due_date" value="{{ task.due_date if task and task.due_date else '' }}">
+    {% endif %}
+
+    <label>Notes</label>
+    {% if restricted %}
+        <textarea disabled>{{ task.notes }}</textarea>
+    {% else %}
+        <textarea name="notes">{{ task.notes if task else '' }}</textarea>
+    {% endif %}
+
+    <button type="submit">Save</button>
+</form>
+</div>
+
+<a href="{{ url_for('main.course_detail', course_id=course.id) }}">Back to {{ course.title }}</a>
+{% endblock %}

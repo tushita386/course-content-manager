@@ -2,7 +2,10 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>{% block title %}Course Content Manager{% endblock %}</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Newsreader:wght@500;600&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
 </head>
 <body>
@@ -10,10 +13,10 @@
         <a href="{{ url_for('main.home') }}" class="brand">Course Content Manager</a>
         <div class="nav-links">
             {% if session.get('user_id') %}
-                <a href="{{ url_for('main.logout') }}">Logout</a>
+                <a href="{{ url_for('main.logout') }}">Log out</a>
             {% else %}
-                <a href="{{ url_for('main.login') }}">Login</a>
-                <a href="{{ url_for('main.register_mentor') }}">Register as Mentor</a>
+                <a href="{{ url_for('main.login') }}">Log in</a>
+                <a href="{{ url_for('main.register_instructor') }}" class="btn btn-primary btn-sm">Register as Instructor</a>
             {% endif %}
         </div>
     </nav>
