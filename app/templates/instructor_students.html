@@ -4,18 +4,39 @@
 
 {% block content %}
 <h1>My Students</h1>
+<p>An overview of each student's progress and consistency.</p>
 
 <ul class="plain-list">
     {% for student in students %}
+    {% set s = stats[student.id] %}
     <li>
-        <strong>{{ student.name }}</strong> — {{ student.email }}
-        {% if student.current_semester %}
-            <br>Semester {{ student.current_semester }}
+        <div class="task-title-row">
+            <strong>{{ student.name }}</strong>
+            {% if s.needs_attention %}
+                <span class="badge badge-attention">Needs Attention</span>
+            {% endif %}
+        </div>
+        <p class="course-meta" style="margin: 4px 0 10px;">
+            {{ student.email }}
+            {% if student.current_semester %} · Semester {{ student.current_semester }}{% else %} · No semester set{% endif %}
+        </p>
+
+        {% if s.total > 0 %}
+        <div class="progress-track">
+            <div class="progress-fill" style="width: {{ s.completion_pct }}%;"></div>
+        </div>
+        <p class="progress-label">
+            {{ s.completed }} of {{ s.total }} tasks completed ({{ s.completion_pct }}%)
+            · Active {{ s.active_days }}/14 days
+            {% if s.overdue > 0 %} · {{ s.overdue }} overdue{% endif %}
+        </p>
         {% else %}
-            <br>No semester set yet
+        <p class="progress-label">No tasks tracked yet</p>
         {% endif %}
-        <br>
-        <a href="{{ url_for('main.instructor_student_courses', student_id=student.id) }}">View Courses</a>
+
+        <div class="course-card-actions">
+            <a href="{{ url_for('main.instructor_student_courses', student_id=student.id) }}" class="btn btn-secondary btn-sm">View Courses</a>
+        </div>
     </li>
     {% else %}
     <p class="empty-state">You haven't added any students yet.</p>

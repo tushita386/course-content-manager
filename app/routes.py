@@ -328,7 +328,8 @@ def delete_task(task_id):
 @login_required(role='instructor')
 def instructor_students():
     students = Student.get_by_instructor(session['user_id'])
-    return render_template('instructor_students.html', students=students)
+    stats = {student.id: student.get_progress_stats() for student in students}
+    return render_template('instructor_students.html', students=students, stats=stats)
 
 
 @main.route('/instructor/students/<int:student_id>/courses')

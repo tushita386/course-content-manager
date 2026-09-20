@@ -1,4 +1,4 @@
-from datetime import datetime
+from datetime import datetime, date, timedelta
 from werkzeug.security import generate_password_hash, check_password_hash
 from app.database import get_connection
 
@@ -124,6 +124,66 @@ class Student:
         conn.commit()
         conn.close()
         self.current_semester = semester
+
+    def get_progress_stats(self):
+        """
+        Aggregates this student's progress by walking Student -> Course -> Task.
+        Computed fresh each time rather than stored, so it's always accurate —
+        no risk of a cached number going stale as tasks change.
+
+        Returns:
+            total: total number of tasks across all this student's courses
+            completed: how many of those are marked 'Completed'
+            completion_pct: completed/total as a rounded percentage
+            overdue: tasks with a due_date in the past that aren't Completed
+            active_days: distinct days in the last 14 this student updated
+                         any task's status — the consistency indicator
+            needs_attention: True when overdue >= 2, a simple, explainable
+                              threshold for flagging a student who may need support
+        """
+        courses = Course.get_by_student(self.id)
+
+        total = 0
+        completed = 0
+        overdue = 0
+        active_dates = set()
+
+        today = date.today()
+        cutoff = today - timedelta(days=14)
+
+        for course in courses:
+            for task in Task.get_by_course(course.id):
+                total += 1
+
+                if task.status == 'Completed':
+                    completed += 1
+
+                if task.due_date and task.status != 'Completed':
+                    try:
+                        due = datetime.strptime(task.due_date, '%Y-%m-%d').date()
+                        if due < today:
+                            overdue += 1
+                    except ValueError:
+                        pass
+
+                if task.updated_at:
+                    try:
+                        updated_date = datetime.fromisoformat(task.updated_at).date()
+                        if updated_date >= cutoff:
+                            active_dates.add(updated_date)
+                    except ValueError:
+                        pass
+
+        completion_pct = round((completed / total) * 100) if total else 0
+
+        return {
+            'total': total,
+            'completed': completed,
+            'completion_pct': completion_pct,
+            'overdue': overdue,
+            'active_days': len(active_dates),
+            'needs_attention': overdue >= 2,
+        }
 
 
 def email_exists(email):

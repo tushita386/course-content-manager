@@ -310,6 +310,11 @@ nav .nav-links a:not(.btn) {
     color: #2A6A8C;
 }
 
+.badge-attention {
+    background: #FBE1DC;
+    color: #A6402F;
+}
+
 /* --- Forms --- */
 
 .form-card {
