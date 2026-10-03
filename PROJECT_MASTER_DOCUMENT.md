@@ -255,6 +255,36 @@ The frontend/backend separation is a separation of folders and responsibilities 
 - `backend/models/` holds the classes for the entities (Course, ContentItem, Profile) and their database operations.
 - `backend/database/` holds the SQLite connection helper and `schema.sql`.
 - All database queries are parameterized (NFR-05).
+## 16. Database Architecture
+
+```text
++------------------+
+| PROFILE          |   (exactly one row, no login: D-04)
+|------------------|
+| id  PK (=1)      |
+| name             |
+| email            |
++------------------+
+
++------------------+            +----------------------+
+| COURSE           | 1        N | CONTENT_ITEM         |
+|------------------|------------|----------------------|
+| id  PK           |            | id  PK               |
+| title            |            | course_id  FK -> COURSE.id (delete cascades)
+| description      |            | title                |
+| category         |            | content_type         |
+| created_at       |            | link_or_description  |
++------------------+            | status               |
+                                | created_at           |
+                                +----------------------+
+```
+
+One course has many content items. Each content item belongs to exactly one course. Profile is a single record and is not linked to courses (D-06).
+
+The schema is in `backend/database/schema.sql`.
+- `ON DELETE CASCADE` supports FR-07 and NFR-04.
+- `CHECK` rules on content type and status back up FR-16. Email format is validated in the app, not in the database.
+- SQLite enforces foreign keys only when `PRAGMA foreign_keys = ON` is set on each connection. This goes in the connection helper during Database Implementation.
 ## 17. Folder Structure
 ```text
 course-content-manager/
@@ -369,6 +399,13 @@ See D-01 in `docs/decisions.md`.
 - **Evidence:** Push output `e9f8d07..1235acc`.
 - **Branch / Commit:** `feature/project-architecture` 1235acc (docs: add initial requirements traceability matrix)
 
+### DL-14 - System architecture (Tracker T-12)
+- **Date:** 2026-10-03
+- **Work performed:** Added system, frontend and backend architecture as sections 13-15. Recorded decision D-05 (server-rendered Flask pages).
+- **Result:** Committed and pushed.
+- **Evidence:** Push output `1235acc..f55fca8`.
+- **Branch / Commit:** `feature/project-architecture` f55fca8 (docs: add system architecture and record decision D-05)
+
 ## 24. Requirements Traceability
 
 Chain: Requirement -> Story -> Design -> Implementation -> Test -> Evidence -> Git commit.
@@ -393,4 +430,5 @@ Only the Story and Design columns are filled so far. "pending" means no real evi
 | FR-15 | US-10 | Screen 1 | pending | pending | pending | pending |
 | FR-16 | US-11 | Screen 4 (error text) | pending | pending | pending | pending |
 | FR-17 | US-11 | not sketched, planned in Validation & Error-Handling Design | pending | pending | pending | pending |
+
 

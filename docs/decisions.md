@@ -42,3 +42,13 @@
 - **Selected approach:** (a). Routes use standard HTTP methods (GET, POST).
 - **Reason:** Simpler, fits the college's "simple web UI" requirement, and is easier to build and defend within the deadline.
 - **Consequences:** Frontend/backend separation is by folders and responsibilities inside one Flask app, not two servers. Flask must load templates and static files from `frontend/`.
+
+## D-06 - Database design decisions
+- **Date:** 2026-10-03
+- **Decision:** Three decisions about the data model.
+  1. Courses are not linked to the profile.
+  2. Content types are fixed to four values: Note, Link, PDF reference, Assignment resource.
+  3. `created_at` is stored on courses and content items.
+- **Options considered:** Not recorded. The proposals were accepted as written.
+- **Reason:** (1) With one profile and no login (D-04), a link would add nothing. (2) Matches the content types chosen in Ideate and keeps validation simple. (3) Lets reports show recent activity.
+- **Consequences:** Adding a new content type later needs a schema change. Profile is a single record.
