@@ -302,3 +302,35 @@ See D-01 in `docs/decisions.md`.
 - **Result:** Committed and pushed.
 - **Evidence:** `git log --oneline -n 3` output.
 - **Branch / Commit:** `feature/project-architecture` 44a27a8 (docs: add non-functional requirements)
+
+### DL-12 - User stories and acceptance criteria (Tracker T-10)
+- **Date:** 2026-10-03
+- **Work performed:** Added 11 user stories (US-01 to US-11) and their acceptance criteria as sections 10-11, covering FR-01 to FR-17.
+- **Result:** Committed and pushed.
+- **Evidence:** Push output `44a27a8..e9f8d07`.
+- **Branch / Commit:** `feature/project-architecture` e9f8d07 (docs: add user stories and acceptance criteria)
+
+## 24. Requirements Traceability
+
+Chain: Requirement -> Story -> Design -> Implementation -> Test -> Evidence -> Git commit.
+Only the Story and Design columns are filled so far. "pending" means no real evidence exists yet and will be filled as work is completed and verified. NFR-01 to NFR-08 are added later, in the Requirements Traceability Update task.
+
+| Requirement | Story | Design (prototype, 7.4) | Implementation | Test | Evidence | Commit |
+|---|---|---|---|---|---|---|
+| FR-01 | US-01 | Screen 5 | pending | pending | pending | pending |
+| FR-02 | US-01 | Screen 5 | pending | pending | pending | pending |
+| FR-03 | US-02 | Screen 2 | pending | pending | pending | pending |
+| FR-04 | US-02 | Screen 2 | pending | pending | pending | pending |
+| FR-05 | US-03 | Screen 3 | pending | pending | pending | pending |
+| FR-06 | US-04 | Screen 3 | pending | pending | pending | pending |
+| FR-07 | US-04 | Screen 3 | pending | pending | pending | pending |
+| FR-08 | US-05 | Screen 3, 4 | pending | pending | pending | pending |
+| FR-09 | US-06 | Screen 3, 4 | pending | pending | pending | pending |
+| FR-10 | US-06 | Screen 3 | pending | pending | pending | pending |
+| FR-11 | US-07 | Screen 4 | pending | pending | pending | pending |
+| FR-12 | US-08 | Screen 2 | pending | pending | pending | pending |
+| FR-13 | US-09 | Screen 3 | pending | pending | pending | pending |
+| FR-14 | US-10 | Screen 1 | pending | pending | pending | pending |
+| FR-15 | US-10 | Screen 1 | pending | pending | pending | pending |
+| FR-16 | US-11 | Screen 4 (error text) | pending | pending | pending | pending |
+| FR-17 | US-11 | not sketched, planned in Validation & Error-Handling Design | pending | pending | pending | pending |
