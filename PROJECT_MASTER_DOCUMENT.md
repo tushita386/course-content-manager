@@ -156,6 +156,20 @@ Low-fidelity screen sketches. The names and numbers are placeholders for layout 
 | FR-17 | Handle errors without crashing: a friendly message for a missing record or an unexpected error. | College requirement |
 
 Ideas refer to section 7.3. Decisions affecting these requirements are recorded in D-04.
+## 9. Non-Functional Requirements
+
+| ID | Category | Requirement |
+|---|---|---|
+| NFR-01 | Usability | Every main function (courses, content, search, dashboard, profile) is reachable from the navigation on every page. |
+| NFR-02 | Performance | Pages load in about 2 seconds or less on a local machine with up to a few hundred records. |
+| NFR-03 | Reliability | Invalid input or a missing record never crashes the app. A clear message is shown instead (supports FR-16, FR-17). |
+| NFR-04 | Data integrity | Deleting a course leaves no orphaned content. Foreign keys are enforced in SQLite. |
+| NFR-05 | Security (basic) | All database queries are parameterized, and user text is escaped when displayed. |
+| NFR-06 | Maintainability | Code follows the frontend/backend structure from D-01, with meaningful names and short comments where needed. |
+| NFR-07 | Portability | The app runs locally on Windows with Python and `pip install -r requirements.txt`, and needs no database server. |
+| NFR-08 | Testability | Core functions have basic automated tests in the `tests/` folder. |
+
+These are targets. Each is verified during testing, and none is claimed as met yet.
 ## 17. Folder Structure
 ```text
 course-content-manager/
@@ -239,3 +253,11 @@ See D-01 in `docs/decisions.md`.
 - **Result:** All three walkthrough scenarios were completed with the sketched screens. Three findings and one open question were carried forward.
 - **Evidence:** `git log --oneline -n 3` output.
 - **Branch / Commit:** `feature/project-architecture` 8ceaaa0 (docs: complete design thinking stages)
+
+
+### DL-10 - Functional requirements (Tracker T-08)
+- **Date:** 2026-10-03
+- **Work performed:** Added 17 functional requirements (FR-01 to FR-17) as section 8. Recorded decision D-04 in the decision log.
+- **Result:** Committed and pushed.
+- **Evidence:** Push output `8ceaaa0..27acfb8`.
+- **Branch / Commit:** `feature/project-architecture` 27acfb8 (docs: add functional requirements and record decision D-04)
