@@ -58,6 +58,22 @@ The User and Mentor/Admin roles come from the college's suggested user stories. 
 - Sometimes it takes time to find a particular note, assignment, or learning resource because the material is not organized in one place.
 - I may also have difficulty keeping track of which course content has been completed and what still needs to be done.
 - I would find it useful to have one simple place where my courses and related learning content could be organized, updated, and searched.
+### 7.2 Define
+**Pain points (from the Empathize observations):**
+1. Notes and material are spread across laptop folders, PDFs and online documents.
+2. Assignment and resource links are saved separately from the material.
+3. Finding one specific note, assignment or resource takes time.
+4. It is hard to track which content is completed and what is still pending.
+
+**Point-of-view statement:**
+> A learner who keeps course notes, links and resources in many separate places needs one simple place to organize, update and search their courses and learning content, because looking through scattered locations wastes time and makes it hard to see what is still incomplete.
+
+**How Might We questions:**
+1. How might we keep courses and their learning content in one place?
+2. How might we let a learner find any item quickly?
+3. How might we show which content is completed and which is pending?
+
+**Boundary note:** HMW 3 concerns learning progress on content (for example not started / in progress / completed). It does not mean due dates, priorities or Kanban, which belong to the development tracker. Whether the app has a completion-status field is decided in the Functional Requirements task.
 ## 17. Folder Structure
 ```text
 course-content-manager/
@@ -117,3 +133,11 @@ See D-01 in `docs/decisions.md`.
 - **Result:** Committed and pushed.
 - **Evidence:** `git log --oneline --all` output.
 - **Branch / Commit:** `feature/project-architecture` 9c6f811 (docs: add project objectives, scope and out-of-scope)
+
+
+### DL-07 - Design Thinking: Empathize stage (Tracker T-07, stage 1 of 5)
+- **Date:** 2026-10-03
+- **Work performed:** Recorded the developer's self-observation as section 7.1. No survey or interviews were conducted.
+- **Result:** Committed and pushed.
+- **Evidence:** `git log --oneline --all` output.
+- **Branch / Commit:** `feature/project-architecture` 11020cc (docs: add design thinking empathize stage)
