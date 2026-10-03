@@ -74,6 +74,65 @@ The User and Mentor/Admin roles come from the college's suggested user stories. 
 3. How might we show which content is completed and which is pending?
 
 **Boundary note:** HMW 3 concerns learning progress on content (for example not started / in progress / completed). It does not mean due dates, priorities or Kanban, which belong to the development tracker. Whether the app has a completion-status field is decided in the Functional Requirements task.
+### 7.3 Ideate
+Feature ideas generated from the How Might We questions. All eight were kept by the developer.
+
+| # | Idea | Answers | College requirement |
+|---|---|---|---|
+| 1 | Simple profile: name, email | HMW 1 | User/profile management |
+| 2 | Course records: title, description, category, create/edit/delete | HMW 1 | Core records and CRUD |
+| 3 | Learning content under each course: title, type (note / link / PDF reference / assignment resource), URL or description | HMW 1 | Core records and CRUD |
+| 4 | Keyword search across courses and content | HMW 2 | Search/filter |
+| 5 | Filter by course, content type and completion status | HMW 2, 3 | Search/filter |
+| 6 | Completion status on each content item: Not started / In progress / Completed | HMW 3 | Core records |
+| 7 | Dashboard: courses count, content count, completed vs pending per course | HMW 3 | Reports/dashboard |
+| 8 | Validation messages for empty or invalid input | all | Validation |
+
+Deliberately left out: reminders, due dates, priorities, tags, file uploads and sharing, because they exceed the college requirements or drift toward a task manager.
+
+### 7.4 Prototype
+Low-fidelity screen sketches. The names and numbers are placeholders for layout only, not real data.
+
+```text
+[1] DASHBOARD                         [2] COURSES
++-------------------------------+     +-------------------------------+
+| Courses: 3   Content: 12      |     | Search: [____________] [Go]   |
+| Completed: 5  Pending: 7      |     | [+ Add course]                |
+|                               |     | DBMS            4 items  >    |
+| Per course:                   |     | Algorithms      5 items  >    |
+|  DBMS        2/4 done         |     | Embedded Sys    3 items  >    |
+|  Algorithms  3/5 done         |     +-------------------------------+
++-------------------------------+
+
+[3] COURSE DETAIL                     [4] ADD / EDIT CONTENT
++-------------------------------+     +-------------------------------+
+| DBMS  [Edit] [Delete]         |     | Title:  [______________]      |
+| Filter: type [All v]          |     | Type:   [Note v]              |
+|         status [All v]        |     | Link/description: [_______]   |
+| [+ Add content]               |     | Status: [Not started v]       |
+| Normalization notes           |     | [Save] [Cancel]               |
+|   Note | Completed   [Edit]   |     | (error text shows here if     |
+| SQL practice sheet            |     |  title is empty)              |
+|   Assignment | Not started    |     +-------------------------------+
++-------------------------------+
+[5] PROFILE: Name [_______] Email [_______] [Save]
+```
+
+### 7.5 Test
+**Method:** Walkthrough of the paper prototype by the developer. This is not user testing, and no other participants were involved.
+
+| Scenario | Completed with the sketched screens? | Notes from the developer |
+|---|---|---|
+| 1. Add a new course, then add a note to it | Yes. The Courses screen has Add course, Course Detail has Add content, and the form has title, type, link/description and status. | The sketch does not show how the user moves from saving a new course to its Course Detail screen, but the intended flow is understandable. |
+| 2. Find an item by keyword, then narrow to completed items | Yes. The Courses screen has keyword search, and Course Detail has type and status filters. | The sketch shows the controls but not an example of the search result state. |
+| 3. See what is still pending in one course | Yes. Course Detail has a status filter, and the dashboard shows completed vs pending per course. | The pending state could be made more visually obvious, but the required information is represented. |
+
+**Findings to carry forward:**
+1. Define the navigation after saving a new course (screens and flow).
+2. Define the search result state.
+3. Make the pending status visually clear in the UI.
+
+**Open question for Functional Requirements (not a test result):** the sketched search box is on the Courses screen. Whether search also covers content items needs to be decided.
 ## 17. Folder Structure
 ```text
 course-content-manager/
@@ -141,3 +200,11 @@ See D-01 in `docs/decisions.md`.
 - **Result:** Committed and pushed.
 - **Evidence:** `git log --oneline --all` output.
 - **Branch / Commit:** `feature/project-architecture` 11020cc (docs: add design thinking empathize stage)
+
+
+### DL-08 - Design Thinking: Define stage (Tracker T-07, stage 2 of 5)
+- **Date:** 2026-10-03
+- **Work performed:** Recorded pain points, the point-of-view statement and three How Might We questions as section 7.2.
+- **Result:** Committed and pushed.
+- **Evidence:** Push output `11020cc..4fdeffc`.
+- **Branch / Commit:** `feature/project-architecture` 4fdeffc (docs: add design thinking define stage)
