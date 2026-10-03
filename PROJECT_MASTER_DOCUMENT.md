@@ -11,6 +11,15 @@ It is NOT a task manager. The Excel tracker is the development-management record
 Learners and instructors often keep course information and learning material scattered across files, folders and chats. This makes it hard to keep records current, to find specific content quickly, and to see what is still incomplete. There is no single, simple place to create, update and search courses and their learning content. Course Content Manager is a web application that lets a user manage their profile, create and maintain courses and learning content, search and filter records, and view simple reports of the current state.
 
 Note: this is a problem framing, not the result of user research.
+## 6. Users / Stakeholders
+
+| Stakeholder | Role | Needs from the app |
+|---|---|---|
+| User | Primary user. Creates and manages their own profile, courses and learning content. | Create and update records, search and filter, keep information current. |
+| Mentor/Admin | Reviews activity. | Simple reports and a dashboard showing activity and pending work. |
+| Project guide / evaluator | Not an app user. Assesses the project. | A working demo, clear documentation, a traceable Git history. |
+
+The User and Mentor/Admin roles come from the college's suggested user stories. The project guide / evaluator is a project stakeholder, not an application user. This analysis is not based on interviews or surveys.
 ## 17. Folder Structure
 ```text
 course-content-manager/
@@ -46,3 +55,11 @@ See D-01 in `docs/decisions.md`.
 - **Result:** Both files committed and pushed.
 - **Evidence:** `git log --oneline --all` output.
 - **Branch / Commit:** `feature/project-architecture` fcd1e5b (docs: add decision log and master project document)
+
+
+### DL-04 - Problem statement and technology decision (Tracker T-04)
+- **Date:** 2026-10-03
+- **Work performed:** Wrote the problem statement as section 2. Recorded D-03 (Python + Flask + SQLite + HTML/CSS) in the decision log.
+- **Result:** Committed and pushed.
+- **Evidence:** `git log --oneline --all` output.
+- **Branch / Commit:** `feature/project-architecture` 438858b (docs: add problem statement and record technology decision)
