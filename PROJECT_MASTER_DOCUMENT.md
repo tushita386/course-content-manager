@@ -170,6 +170,39 @@ Ideas refer to section 7.3. Decisions affecting these requirements are recorded 
 | NFR-08 | Testability | Core functions have basic automated tests in the `tests/` folder. |
 
 These are targets. Each is verified during testing, and none is claimed as met yet.
+## 10. User Stories
+
+| ID | Story | Covers |
+|---|---|---|
+| US-01 | As a user, I want to create and update my profile so that my information stays current. | FR-01, FR-02 |
+| US-02 | As a user, I want to create a course so that I can organize my learning in one place. | FR-03, FR-04 |
+| US-03 | As a user, I want to view a course with its content so that I see everything for it together. | FR-05 |
+| US-04 | As a user, I want to edit or delete a course so that my records stay accurate. | FR-06, FR-07 |
+| US-05 | As a user, I want to add learning content to a course so that notes, links and resources sit with the course. | FR-08 |
+| US-06 | As a user, I want to edit or delete content so that the course stays current. | FR-09, FR-10 |
+| US-07 | As a user, I want to mark content Not started / In progress / Completed so that I know what is done. | FR-11 |
+| US-08 | As a user, I want to search by keyword so that I can find information quickly. | FR-12 |
+| US-09 | As a user, I want to filter a course's content by type and status so that I can see what is pending. | FR-13 |
+| US-10 | As a mentor/admin, I want simple reports so that I can review activity and identify pending work. | FR-14, FR-15 |
+| US-11 | As a user, I want clear messages for bad input or errors so that I can fix problems without the app breaking. | FR-16, FR-17 |
+
+US-01 and US-10 follow the college's suggested user stories. Roles come from section 6.
+
+## 11. Acceptance Criteria
+
+| Story | Acceptance criteria |
+|---|---|
+| US-01 | A profile with a name and a valid email can be saved. The saved details display on the profile page. Editing changes them. |
+| US-02 | A course with a title is saved. After saving, the user lands on that course's detail page (D-04). The course appears in the course list. |
+| US-03 | The detail page shows the course info and all its content items with type and status. |
+| US-04 | Edits are saved and shown. Deleting a course removes it and all its content. |
+| US-05 | Content with a title, type, link/description and status is saved under the course and listed on its page. |
+| US-06 | Edits are saved. A deleted item no longer appears. |
+| US-07 | The status can be changed, and the new status shows on the course page and the dashboard. |
+| US-08 | A keyword returns courses and content whose titles match. No match shows a clear "no results" message. |
+| US-09 | Filtering by type and/or status lists only matching items. Pending means Not started or In progress (D-04). |
+| US-10 | The dashboard shows totals for courses, content, completed and pending, plus completed/total per course. |
+| US-11 | An empty title, an invalid email, or an invalid type or status is rejected with a clear message. A missing record shows a friendly message, not a crash. |
 ## 17. Folder Structure
 ```text
 course-content-manager/
@@ -261,3 +294,11 @@ See D-01 in `docs/decisions.md`.
 - **Result:** Committed and pushed.
 - **Evidence:** Push output `8ceaaa0..27acfb8`.
 - **Branch / Commit:** `feature/project-architecture` 27acfb8 (docs: add functional requirements and record decision D-04)
+
+
+### DL-11 - Non-functional requirements (Tracker T-09)
+- **Date:** 2026-10-03
+- **Work performed:** Added 8 non-functional requirements (NFR-01 to NFR-08) as section 9. They are targets, to be verified in testing.
+- **Result:** Committed and pushed.
+- **Evidence:** `git log --oneline -n 3` output.
+- **Branch / Commit:** `feature/project-architecture` 44a27a8 (docs: add non-functional requirements)
