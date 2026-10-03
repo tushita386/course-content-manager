@@ -47,6 +47,17 @@ Note: this is a problem framing, not the result of user research.
 | Project guide / evaluator | Not an app user. Assesses the project. | A working demo, clear documentation, a traceable Git history. |
 
 The User and Mentor/Admin roles come from the college's suggested user stories. The project guide / evaluator is a project stakeholder, not an application user. This analysis is not based on interviews or surveys.
+## 7. Design Thinking
+
+### 7.1 Empathize
+**Method:** Self-observation by the developer, who is also a learner and the first user. No survey or interviews were conducted.
+
+**Observations (in the developer's own words):**
+- I usually keep my course notes and study material in different places, such as folders on my laptop, PDFs, and online documents.
+- Important links for assignments, resources, and course material are often saved separately, so I have to search through different places when I need something.
+- Sometimes it takes time to find a particular note, assignment, or learning resource because the material is not organized in one place.
+- I may also have difficulty keeping track of which course content has been completed and what still needs to be done.
+- I would find it useful to have one simple place where my courses and related learning content could be organized, updated, and searched.
 ## 17. Folder Structure
 ```text
 course-content-manager/
@@ -98,3 +109,11 @@ See D-01 in `docs/decisions.md`.
 - **Result:** Committed and pushed.
 - **Evidence:** `git log --oneline --all` output.
 - **Branch / Commit:** `feature/project-architecture` 633406b (docs: add user and stakeholder analysis)
+
+
+### DL-06 - Project objectives and scope (Tracker T-06)
+- **Date:** 2026-10-03
+- **Work performed:** Added objectives, scope and out-of-scope as sections 3-5.
+- **Result:** Committed and pushed.
+- **Evidence:** `git log --oneline --all` output.
+- **Branch / Commit:** `feature/project-architecture` 9c6f811 (docs: add project objectives, scope and out-of-scope)
