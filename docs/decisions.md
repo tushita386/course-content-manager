@@ -15,3 +15,11 @@
 - **Selected approach:** `main` holds only an initial `.gitignore` commit. All work lives on `feature/*` branches, which are committed and pushed.
 - **Reason:** `main` represents the final integrated version.
 - **Consequences:** Git cannot branch from a repository with no commits, so one initial commit on `main` was required (8b55163).
+
+## D-03 - Technology stack
+- **Date:** 2026-10-03
+- **Decision:** Use Python + Flask + SQLite + HTML/CSS.
+- **Options considered:** The college allows Option A (Python + PostgreSQL/SQLite + simple web UI) or Option B (Java + PostgreSQL + simple web UI).
+- **Selected approach:** Python with Flask for the backend, SQLite for the database, HTML/CSS for the frontend.
+- **Reason:** It is allowed by the college, simple, and easy to explain in a viva.
+- **Consequences:** The database is a single file with no server to install. `*.db` is in `.gitignore`, so the schema is kept in `backend/database/schema.sql`.

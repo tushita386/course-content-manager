@@ -7,6 +7,10 @@ Course Content Manager is an individual e-learning application that manages cour
 
 It is NOT a task manager. The Excel tracker is the development-management record and is separate from the application.
 
+## 2. Problem Statement
+Learners and instructors often keep course information and learning material scattered across files, folders and chats. This makes it hard to keep records current, to find specific content quickly, and to see what is still incomplete. There is no single, simple place to create, update and search courses and their learning content. Course Content Manager is a web application that lets a user manage their profile, create and maintain courses and learning content, search and filter records, and view simple reports of the current state.
+
+Note: this is a problem framing, not the result of user research.
 ## 17. Folder Structure
 ```text
 course-content-manager/
@@ -34,3 +38,11 @@ See D-01 in `docs/decisions.md`.
 - **Result:** Both branches pushed. `main` was not merged into.
 - **Evidence:** `tree /F` and `git log --oneline --all` output.
 - **Branch / Commit:** `main` 8b55163 (chore: add .gitignore); `feature/project-architecture` 27e4f62 (feat: add frontend/backend project structure)
+
+
+### DL-03 - Documentation setup (Tracker T-03)
+- **Date:** 2026-10-03
+- **Work performed:** Added the decision log (D-01, D-02) and the master document skeleton.
+- **Result:** Both files committed and pushed.
+- **Evidence:** `git log --oneline --all` output.
+- **Branch / Commit:** `feature/project-architecture` fcd1e5b (docs: add decision log and master project document)
