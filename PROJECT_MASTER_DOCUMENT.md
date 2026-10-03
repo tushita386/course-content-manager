@@ -297,6 +297,72 @@ course-content-manager/
 ```
 See D-01 in `docs/decisions.md`.
 
+## 18. API Design (Routes)
+
+| Method | URL | Purpose | Covers |
+|---|---|---|---|
+| GET | `/` | Dashboard | FR-14, FR-15 |
+| GET, POST | `/profile` | View the profile and save changes | FR-01, FR-02 |
+| GET | `/courses` | Course list | FR-04 |
+| GET, POST | `/courses/new` | Add course form, then create it | FR-03 |
+| GET | `/courses/<id>` | Course detail with content. Filters via `?type=&status=` | FR-05, FR-13 |
+| GET, POST | `/courses/<id>/edit` | Edit course | FR-06 |
+| POST | `/courses/<id>/delete` | Delete course and its content | FR-07 |
+| GET, POST | `/courses/<id>/content/new` | Add content | FR-08 |
+| GET, POST | `/content/<id>/edit` | Edit content, including its status | FR-09, FR-11 |
+| POST | `/content/<id>/delete` | Delete content | FR-10 |
+| GET | `/search?q=` | Search course and content titles | FR-12 |
+| (handlers) | 404 and 500 | Friendly error pages | FR-17 |
+
+Browser forms only send GET and POST, so every change is a POST. Deletes are never GET (D-07).
+
+### 18.1 Validation and Error Handling
+
+| Field | Rule |
+|---|---|
+| Profile name | Required, up to 100 characters |
+| Profile email | Required, simple format check (text, `@`, text, `.`, text), up to 254 characters |
+| Course title | Required, up to 150 characters |
+| Course description / category | Optional, up to 1000 / 50 characters |
+| Content title | Required, up to 150 characters |
+| Content type / status | Must be one of the allowed values (D-06 and FR-11) |
+| Content link/description | Optional, up to 1000 characters |
+| Search keyword | An empty keyword shows "Enter a keyword" |
+| Filters | An unknown filter value is treated as "All" |
+
+Behaviour:
+- Whitespace is trimmed before checking.
+- A failed validation saves nothing, re-shows the form with the entered values, and gives a clear message next to the field.
+- A missing course or content id shows a friendly "not found" page.
+- An unexpected error shows a friendly "something went wrong" page. Details are printed to the console and not shown to the user.
+- Database calls are wrapped in try/except in the model layer.
+
+The length limits are working values and may be revisited if implementation shows a genuine need.
+
+## 19. UI Flow
+
+```text
+              +--------- navigation bar on every page ----------+
+              |   Dashboard      Courses      Profile           |
+              +-------------------------------------------------+
+
+ Dashboard (/)                 Profile
+   |                             (view + edit on one page)
+   v
+ Courses list --> Add course form --(save)--> Course detail
+   |  [search box]                              |  filters: type, status
+   |                                            |--> Edit course / Delete course
+   v                                            |--> Add content form --(save)--> Course detail
+ Search results                                 '--> Edit content form --(save)--> Course detail
+   |--> matching courses --> Course detail
+   '--> matching content --> its Course detail
+```
+
+- Search results page (test finding 2): two groups, "Courses" and "Content". Each content result shows the course it belongs to. No match shows "No results found".
+- Pending visibility (test finding 3): status appears as a badge on every content item. Not started and In progress are styled to stand out, and Completed is styled muted.
+- After saving a new course (test finding 1, D-04), the user lands on that course's detail page.
+- After saving content, the user returns to the course detail page.
+- Pages follow the prototype sketches in section 7.4.
 ## 20. Development Log
 
 ### DL-01 - GitHub repository setup (Tracker T-01)
@@ -406,6 +472,13 @@ See D-01 in `docs/decisions.md`.
 - **Evidence:** Push output `1235acc..f55fca8`.
 - **Branch / Commit:** `feature/project-architecture` f55fca8 (docs: add system architecture and record decision D-05)
 
+### DL-15 - ER diagram and database schema (Tracker T-13, T-14)
+- **Date:** 2026-10-03
+- **Work performed:** Added the ER diagram as section 16 and created `backend/database/schema.sql`. Recorded decision D-06. Ran a one-off check that the SQL creates the tables in a temporary in-memory database. This was a validity check, not a formal test case.
+- **Result:** Output `['profile', 'course', 'content_item']`. Committed and pushed.
+- **Evidence:** Python output and push output `f55fca8..c9e65d7`.
+- **Branch / Commit:** `feature/project-architecture` c9e65d7 (feat: add ER design, database schema and record decision D-06)
+
 ## 24. Requirements Traceability
 
 Chain: Requirement -> Story -> Design -> Implementation -> Test -> Evidence -> Git commit.
@@ -429,6 +502,7 @@ Only the Story and Design columns are filled so far. "pending" means no real evi
 | FR-14 | US-10 | Screen 1 | pending | pending | pending | pending |
 | FR-15 | US-10 | Screen 1 | pending | pending | pending | pending |
 | FR-16 | US-11 | Screen 4 (error text) | pending | pending | pending | pending |
-| FR-17 | US-11 | not sketched, planned in Validation & Error-Handling Design | pending | pending | pending | pending |
+| FR-17 | US-11 | No screen sketched; error handling designed in section 18.1 | pending | pending | pending | pending |
+
 
 

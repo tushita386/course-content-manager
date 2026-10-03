@@ -52,3 +52,13 @@
 - **Options considered:** Not recorded. The proposals were accepted as written.
 - **Reason:** (1) With one profile and no login (D-04), a link would add nothing. (2) Matches the content types chosen in Ideate and keeps validation simple. (3) Lets reports show recent activity.
 - **Consequences:** Adding a new content type later needs a schema change. Profile is a single record.
+
+## D-07 - UI and route conventions
+- **Date:** 2026-10-03
+- **Decision:** Three conventions.
+  1. Forms use GET and POST only. Every state-changing action is a POST, and deletes are never GET.
+  2. The search results page is grouped into Courses and Content.
+  3. A failed validation saves nothing and re-shows the form with the user's input kept and a clear message.
+- **Options considered:** Not recorded. The proposals were accepted as written.
+- **Reason:** Browser forms only send GET and POST, so this keeps the implementation simple. Grouped results and kept input make the app easier to use.
+- **Consequences:** Routes follow section 18. The length limits in section 18.1 are working values and can be revisited.
