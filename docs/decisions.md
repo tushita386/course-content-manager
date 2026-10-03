@@ -23,3 +23,14 @@
 - **Selected approach:** Python with Flask for the backend, SQLite for the database, HTML/CSS for the frontend.
 - **Reason:** It is allowed by the college, simple, and easy to explain in a viva.
 - **Consequences:** The database is a single file with no server to install. `*.db` is in `.gitignore`, so the schema is kept in `backend/database/schema.sql`.
+
+## D-04 - Functional requirement decisions
+- **Date:** 2026-10-03
+- **Decision:** Four decisions that shape the functional requirements.
+  1. Search (FR-12) covers both course titles and content titles.
+  2. After saving a new course, the user lands on that course's detail page.
+  3. "Pending" means status Not started or In progress.
+  4. The app has a single profile and no login. The Mentor/Admin sees the same dashboard.
+- **Options considered:** Not recorded. The proposals were accepted as written.
+- **Reason:** (1) resolves the open question from the prototype test in 7.5; (2) resolves test finding 1; (3) defines the dashboard counts; (4) follows the out-of-scope list, which excludes complex authentication.
+- **Consequences:** The dashboard and search must apply these rules. There is no user table for login, so profile data is a single record.

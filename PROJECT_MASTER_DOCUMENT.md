@@ -133,6 +133,29 @@ Low-fidelity screen sketches. The names and numbers are placeholders for layout 
 3. Make the pending status visually clear in the UI.
 
 **Open question for Functional Requirements (not a test result):** the sketched search box is on the Courses screen. Whether search also covers content items needs to be decided.
+## 8. Functional Requirements
+
+| ID | Requirement | Source |
+|---|---|---|
+| FR-01 | Create and edit a profile (name, email). | Idea 1 |
+| FR-02 | View the profile. | Idea 1 |
+| FR-03 | Create a course (title required; description and category optional). | Idea 2 |
+| FR-04 | View the list of all courses. | Idea 2 |
+| FR-05 | View a course's details and its learning content. | Idea 2, 3 |
+| FR-06 | Edit a course. | Idea 2 |
+| FR-07 | Delete a course, together with its content. | Idea 2 |
+| FR-08 | Add learning content to a course (title required, type, link/description, status). | Idea 3 |
+| FR-09 | Edit a content item. | Idea 3 |
+| FR-10 | Delete a content item. | Idea 3 |
+| FR-11 | Set a content item's status: Not started / In progress / Completed. | Idea 6 |
+| FR-12 | Keyword search across course titles and content titles. | Idea 4 |
+| FR-13 | Filter a course's content by type and by status. | Idea 5 |
+| FR-14 | Dashboard totals: courses, content items, completed, pending. | Idea 7 |
+| FR-15 | Dashboard per-course progress (completed / total). | Idea 7 |
+| FR-16 | Validate input: reject an empty title or invalid email, and invalid type or status values, with a clear message. | Idea 8 |
+| FR-17 | Handle errors without crashing: a friendly message for a missing record or an unexpected error. | College requirement |
+
+Ideas refer to section 7.3. Decisions affecting these requirements are recorded in D-04.
 ## 17. Folder Structure
 ```text
 course-content-manager/
@@ -208,3 +231,11 @@ See D-01 in `docs/decisions.md`.
 - **Result:** Committed and pushed.
 - **Evidence:** Push output `11020cc..4fdeffc`.
 - **Branch / Commit:** `feature/project-architecture` 4fdeffc (docs: add design thinking define stage)
+
+
+### DL-09 - Design Thinking: Ideate, Prototype and Test stages (Tracker T-07, completed)
+- **Date:** 2026-10-03
+- **Work performed:** Recorded the eight kept ideas (7.3), low-fidelity screen sketches (7.4) and a developer walkthrough of the paper prototype (7.5). The test was not user testing.
+- **Result:** All three walkthrough scenarios were completed with the sketched screens. Three findings and one open question were carried forward.
+- **Evidence:** `git log --oneline -n 3` output.
+- **Branch / Commit:** `feature/project-architecture` 8ceaaa0 (docs: complete design thinking stages)
