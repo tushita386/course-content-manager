@@ -285,6 +285,12 @@ The schema is in `backend/database/schema.sql`.
 - `ON DELETE CASCADE` supports FR-07 and NFR-04.
 - `CHECK` rules on content type and status back up FR-16. Email format is validated in the app, not in the database.
 - SQLite enforces foreign keys only when `PRAGMA foreign_keys = ON` is set on each connection. This goes in the connection helper during Database Implementation.
+### 16.1 Implementation
+- `backend/database/db.py` provides a SQLite connection helper and an initialization function.
+- The helper enables foreign keys on every connection (PRAGMA foreign_keys = ON), which makes ON DELETE CASCADE work (FR-07, NFR-04).
+- The initialization function creates the tables from `schema.sql`.
+- The SQLite database file is created locally and excluded from Git by `.gitignore`.
+- Verified by a sanity check, not a formal test case: the three tables were created, foreign keys were on, and deleting a course left 0 content rows (see DL-18). Formal tests are planned in the testing phase.
 ## 17. Folder Structure
 ```text
 course-content-manager/
@@ -486,6 +492,20 @@ The length limits are working values and may be revisited if implementation show
 - **Evidence:** Push output `c9e65d7..d7d9dfc`.
 - **Branch / Commit:** `feature/project-architecture` d7d9dfc (docs: add UI flow, route design, validation design and record decision D-07)
 
+### DL-17 - Development environment setup (Tracker T-18)
+- **Date:** 2026-10-03
+- **Work performed:** Created a Python virtual environment (excluded from Git), installed Flask, and pinned the dependencies in backend/requirements.txt (Flask 3.1.3, Werkzeug 3.1.9, Jinja2 3.1.6, click 8.5.0, itsdangerous 2.2.0, blinker 1.9.0, MarkupSafe 3.0.4). Created backend/app.py, which loads templates and static files from frontend/ (consequence of D-01). Python version: Python 3.13.3.
+- **Result:** Printing the configured folders showed the frontend/templates and frontend/static paths. The development server has not been run yet.
+- **Evidence:** Terminal output of the path check and the requirements file.
+- **Branch / Commit:** feature/dev-environment 9d578b5 (feat: set up Flask development environment)
+
+### DL-18 - Database implementation (Tracker T-19)
+- **Date:** 2026-10-03
+- **Work performed:** Added backend/database/db.py with a SQLite connection helper that enables foreign keys (PRAGMA foreign_keys = ON) and an initialization function that creates the tables from schema.sql.
+- **Result:** Verification output: tables ['profile', 'course', 'content_item']; foreign_keys 1; a cascade-delete sanity check returned 0 content rows left after deleting the course. The first attempt at the check failed because of a paste error in the terminal; the corrected one-line run succeeded. This was a sanity check, not a formal test case. The SQLite database file is excluded by .gitignore.
+- **Evidence:** Terminal output as reported by the developer.
+- **Branch / Commit:** feature/database a69ccba (feat: add SQLite database connection and initialization)
+
 ## 24. Requirements Traceability
 
 Chain: Requirement -> Story -> Design -> Implementation -> Test -> Evidence -> Git commit.
@@ -510,6 +530,7 @@ Only the Story and Design columns are filled so far. "pending" means no real evi
 | FR-15 | US-10 | Screen 1 | pending | pending | pending | pending |
 | FR-16 | US-11 | Screen 4 (error text) | pending | pending | pending | pending |
 | FR-17 | US-11 | No screen sketched; error handling designed in section 18.1 | pending | pending | pending | pending |
+
 
 
 
