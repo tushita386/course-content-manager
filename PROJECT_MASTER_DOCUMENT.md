@@ -203,6 +203,58 @@ US-01 and US-10 follow the college's suggested user stories. Roles come from sec
 | US-09 | Filtering by type and/or status lists only matching items. Pending means Not started or In progress (D-04). |
 | US-10 | The dashboard shows totals for courses, content, completed and pending, plus completed/total per course. |
 | US-11 | An empty title, an invalid email, or an invalid type or status is rejected with a clear message. A missing record shows a friendly message, not a crash. |
+## 13. System Architecture
+
+```text
+ Browser (user)
+     |  HTTP: GET / POST
+     v
++-------------------------------------------------+
+| FLASK APPLICATION (one Python process)          |
+|                                                 |
+|  frontend/templates + static   <- pages (HTML/CSS)
+|          ^                                      |
+|          | render                               |
+|  backend/routes     handle URLs, validate input |
+|          |                                      |
+|          v                                      |
+|  backend/models     Course, ContentItem,        |
+|                     Profile classes (OOP)       |
+|          |                                      |
+|          v                                      |
+|  backend/database   connection + schema.sql     |
++----------|--------------------------------------+
+           v
+     SQLite file (local, no server)
+```
+
+**Example flow (FR-08, add content):**
+1. The user submits the Add Content form (POST to the course's content URL).
+2. The route checks the input (FR-16).
+3. The model saves it using a parameterized SQL query (NFR-05).
+4. The route redirects to the course detail page, which reads the data and renders the template.
+
+| Part | Folder | Job |
+|---|---|---|
+| Presentation | `frontend/` | HTML templates and CSS. No business logic. |
+| Request handling | `backend/routes/` | Receive requests, validate, call models, return pages. |
+| Domain and data access | `backend/models/` | Classes with the database operations for each entity. |
+| Database | `backend/database/` | Connection helper and `schema.sql`. |
+
+The frontend/backend separation is a separation of folders and responsibilities inside one Flask app, not two separate servers (D-05).
+
+## 14. Frontend Architecture
+- `frontend/templates/` holds the HTML pages rendered by Flask. `frontend/static/` holds CSS and any JavaScript.
+- The frontend contains presentation only, with no business logic or database access.
+- Flask is configured to load templates and static files from `frontend/` (consequence of D-01).
+- Pages follow the prototype sketches in section 7.4.
+
+## 15. Backend Architecture
+- `backend/app.py` is the Flask entry point.
+- `backend/routes/` receives requests, validates input and returns rendered pages or redirects.
+- `backend/models/` holds the classes for the entities (Course, ContentItem, Profile) and their database operations.
+- `backend/database/` holds the SQLite connection helper and `schema.sql`.
+- All database queries are parameterized (NFR-05).
 ## 17. Folder Structure
 ```text
 course-content-manager/
@@ -310,6 +362,13 @@ See D-01 in `docs/decisions.md`.
 - **Evidence:** Push output `44a27a8..e9f8d07`.
 - **Branch / Commit:** `feature/project-architecture` e9f8d07 (docs: add user stories and acceptance criteria)
 
+### DL-13 - Requirements traceability matrix, initial (Tracker T-11)
+- **Date:** 2026-10-03
+- **Work performed:** Added the initial traceability matrix as section 24. FR-01 to FR-17 are mapped to stories and prototype screens. Implementation, test, evidence and commit columns are pending.
+- **Result:** Committed and pushed.
+- **Evidence:** Push output `e9f8d07..1235acc`.
+- **Branch / Commit:** `feature/project-architecture` 1235acc (docs: add initial requirements traceability matrix)
+
 ## 24. Requirements Traceability
 
 Chain: Requirement -> Story -> Design -> Implementation -> Test -> Evidence -> Git commit.
@@ -334,3 +393,4 @@ Only the Story and Design columns are filled so far. "pending" means no real evi
 | FR-15 | US-10 | Screen 1 | pending | pending | pending | pending |
 | FR-16 | US-11 | Screen 4 (error text) | pending | pending | pending | pending |
 | FR-17 | US-11 | not sketched, planned in Validation & Error-Handling Design | pending | pending | pending | pending |
+

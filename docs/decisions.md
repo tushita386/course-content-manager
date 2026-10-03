@@ -34,3 +34,11 @@
 - **Options considered:** Not recorded. The proposals were accepted as written.
 - **Reason:** (1) resolves the open question from the prototype test in 7.5; (2) resolves test finding 1; (3) defines the dashboard counts; (4) follows the out-of-scope list, which excludes complex authentication.
 - **Consequences:** The dashboard and search must apply these rules. There is no user table for login, so profile data is a single record.
+
+## D-05 - Server-rendered pages
+- **Date:** 2026-10-03
+- **Decision:** Flask renders HTML templates directly. There is no separate JSON API and no JavaScript frontend that calls it.
+- **Options considered:** (a) server-rendered Flask pages; (b) a separate REST API plus a JavaScript frontend.
+- **Selected approach:** (a). Routes use standard HTTP methods (GET, POST).
+- **Reason:** Simpler, fits the college's "simple web UI" requirement, and is easier to build and defend within the deadline.
+- **Consequences:** Frontend/backend separation is by folders and responsibilities inside one Flask app, not two servers. Flask must load templates and static files from `frontend/`.
