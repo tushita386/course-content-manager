@@ -62,3 +62,11 @@
 - **Options considered:** Not recorded. The proposals were accepted as written.
 - **Reason:** Browser forms only send GET and POST, so this keeps the implementation simple. Grouped results and kept input make the app easier to use.
 - **Consequences:** Routes follow section 18. The length limits in section 18.1 are working values and can be revisited.
+
+## D-08 - Branch for the development environment
+- **Date:** 2026-10-03
+- **Decision:** Development environment work is done on its own branch, `feature/dev-environment`, created from `feature/project-architecture`.
+- **Options considered:** (a) keep working on `feature/project-architecture`; (b) branch from `main`; (c) a new branch from `feature/project-architecture`.
+- **Selected approach:** (c).
+- **Reason:** The `backend/` folders, the schema and the documentation exist only on `feature/project-architecture`, so a branch from `main` would not contain them. A separate branch keeps code work apart from the design documents.
+- **Consequences:** Branches depend on each other. At final integration, they are merged into `main` in the order they were created. Nothing is merged before then (D-02).

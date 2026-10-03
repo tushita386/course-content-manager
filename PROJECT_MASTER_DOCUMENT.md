@@ -479,6 +479,13 @@ The length limits are working values and may be revisited if implementation show
 - **Evidence:** Python output and push output `f55fca8..c9e65d7`.
 - **Branch / Commit:** `feature/project-architecture` c9e65d7 (feat: add ER design, database schema and record decision D-06)
 
+### DL-16 - UI flow, route design and validation design (Tracker T-15, T-16, T-17)
+- **Date:** 2026-10-03
+- **Work performed:** Added the route table and validation design as section 18 and 18.1, and the UI flow as section 19. Recorded decision D-07. Updated the FR-17 design reference in the traceability matrix.
+- **Result:** Committed and pushed.
+- **Evidence:** Push output `c9e65d7..d7d9dfc`.
+- **Branch / Commit:** `feature/project-architecture` d7d9dfc (docs: add UI flow, route design, validation design and record decision D-07)
+
 ## 24. Requirements Traceability
 
 Chain: Requirement -> Story -> Design -> Implementation -> Test -> Evidence -> Git commit.
@@ -503,6 +510,7 @@ Only the Story and Design columns are filled so far. "pending" means no real evi
 | FR-15 | US-10 | Screen 1 | pending | pending | pending | pending |
 | FR-16 | US-11 | Screen 4 (error text) | pending | pending | pending | pending |
 | FR-17 | US-11 | No screen sketched; error handling designed in section 18.1 | pending | pending | pending | pending |
+
 
 
 
