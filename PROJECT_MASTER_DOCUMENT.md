@@ -255,6 +255,11 @@ The frontend/backend separation is a separation of folders and responsibilities 
 - `backend/models/` holds the classes for the entities (Course, ContentItem, Profile) and their database operations.
 - `backend/database/` holds the SQLite connection helper and `schema.sql`.
 - All database queries are parameterized (NFR-05).
+### 15.1 Models
+- `backend/models/` holds three dataclasses: `Course`, `ContentItem` and `Profile`, matching the tables in `schema.sql`.
+- Each has a `from_row` method that builds an object from a database row.
+- `ContentItem` defines the allowed content types and statuses (D-06, FR-11), used as the single source for validation. Its `is_pending` check is true for Not started and In progress (D-04).
+- The database operations (create, read, update, delete) are added to the models during the CRUD tasks.
 ## 16. Database Architecture
 
 ```text
@@ -506,6 +511,13 @@ The length limits are working values and may be revisited if implementation show
 - **Evidence:** Terminal output as reported by the developer.
 - **Branch / Commit:** feature/database a69ccba (feat: add SQLite database connection and initialization)
 
+### DL-19 - Model classes (Tracker T-20)
+- **Date:** 2026-10-05
+- **Work performed:** Added the Course, ContentItem and Profile classes in backend/models/. ContentItem defines the allowed types and statuses and an is_pending check.
+- **Result:** A sanity check printed the expected output: a Course built from a row, is_pending True for Not started and False for Completed, the allowed types and statuses, and a Profile. This was a sanity check, not a formal test case.
+- **Evidence:** Terminal output of the check.
+- **Branch / Commit:** feature/models 4bf20ee (feat: add Course, ContentItem and Profile model classes)
+
 ## 24. Requirements Traceability
 
 Chain: Requirement -> Story -> Design -> Implementation -> Test -> Evidence -> Git commit.
@@ -530,6 +542,7 @@ Only the Story and Design columns are filled so far. "pending" means no real evi
 | FR-15 | US-10 | Screen 1 | pending | pending | pending | pending |
 | FR-16 | US-11 | Screen 4 (error text) | pending | pending | pending | pending |
 | FR-17 | US-11 | No screen sketched; error handling designed in section 18.1 | pending | pending | pending | pending |
+
 
 
 
