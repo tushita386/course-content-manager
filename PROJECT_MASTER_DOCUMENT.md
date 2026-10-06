@@ -525,6 +525,13 @@ The length limits are working values and may be revisited if implementation show
 - **Evidence:** Terminal output of the check.
 - **Branch / Commit:** feature/course-crud b22864d (feat: add course database operations)
 
+### DL-21 - Learning content CRUD, database operations (Tracker T-23)
+- **Date:** 2026-10-06
+- **Work performed:** Added create, get_by_id, get_by_course, update and delete operations to the ContentItem model (backend/models/content_item.py). Each takes the database connection as its first argument and uses parameterized SQL. Status can be set on create and update. Filtering by type and status (T-24), validation (T-25) and exception handling (T-26) are not part of this task.
+- **Result:** A sanity check on a temporary in-memory database printed the expected output: content items were created, read, updated (status changed to Completed, is_pending False) and deleted; deleting a missing id returned False; the database rejected an invalid status with an IntegrityError. This was a sanity check, not a formal test case. The routes for FR-08 to FR-11 are not built yet.
+- **Evidence:** Terminal output of the check.
+- **Branch / Commit:** feature/content-crud fbeaa87 (feat: add learning content database operations)
+
 ## 24. Requirements Traceability
 
 Chain: Requirement -> Story -> Design -> Implementation -> Test -> Evidence -> Git commit.
@@ -539,16 +546,17 @@ The Story and Design columns are filled. The Implementation, Test, Evidence and 
 | FR-05 | US-03 | Screen 3 | pending | pending | pending | pending |
 | FR-06 | US-04 | Screen 3 | Model: Course.update (route pending) | pending | DL-20 (sanity check only) | b22864d |
 | FR-07 | US-04 | Screen 3 | Model: Course.delete with cascade (route pending) | pending | DL-20 (sanity check only) | b22864d |
-| FR-08 | US-05 | Screen 3, 4 | pending | pending | pending | pending |
-| FR-09 | US-06 | Screen 3, 4 | pending | pending | pending | pending |
-| FR-10 | US-06 | Screen 3 | pending | pending | pending | pending |
-| FR-11 | US-07 | Screen 4 | pending | pending | pending | pending |
+| FR-08 | US-05 | Screen 3, 4 | Model: ContentItem.create (route pending) | pending | DL-21 (sanity check only) | fbeaa87 |
+| FR-09 | US-06 | Screen 3, 4 | Model: ContentItem.update (route pending) | pending | DL-21 (sanity check only) | fbeaa87 |
+| FR-10 | US-06 | Screen 3 | Model: ContentItem.delete (route pending) | pending | DL-21 (sanity check only) | fbeaa87 |
+| FR-11 | US-07 | Screen 4 | Model: status set in ContentItem.create and update (route pending) | pending | DL-21 (sanity check only) | fbeaa87 |
 | FR-12 | US-08 | Screen 2 | pending | pending | pending | pending |
 | FR-13 | US-09 | Screen 3 | pending | pending | pending | pending |
 | FR-14 | US-10 | Screen 1 | pending | pending | pending | pending |
 | FR-15 | US-10 | Screen 1 | pending | pending | pending | pending |
 | FR-16 | US-11 | Screen 4 (error text) | pending | pending | pending | pending |
 | FR-17 | US-11 | No screen sketched; error handling designed in section 18.1 | pending | pending | pending | pending |
+
 
 
 
