@@ -52,11 +52,18 @@ class ContentItem:
         return cls.from_row(row) if row else None
 
     @classmethod
-    def get_by_course(cls, conn, course_id):
-        rows = conn.execute(
-            "SELECT * FROM content_item WHERE course_id = ? ORDER BY created_at, id",
-            (course_id,),
-        ).fetchall()
+    def get_by_course(cls, conn, course_id, content_type=None, status=None):
+        """Content of one course. Unknown or empty filter values are ignored (All)."""
+        query = "SELECT * FROM content_item WHERE course_id = ?"
+        params = [course_id]
+        if content_type in cls.TYPES:
+            query += " AND content_type = ?"
+            params.append(content_type)
+        if status in cls.STATUSES:
+            query += " AND status = ?"
+            params.append(status)
+        query += " ORDER BY created_at, id"
+        rows = conn.execute(query, params).fetchall()
         return [cls.from_row(row) for row in rows]
 
     @classmethod
