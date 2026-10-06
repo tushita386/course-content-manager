@@ -518,20 +518,27 @@ The length limits are working values and may be revisited if implementation show
 - **Evidence:** Terminal output of the check.
 - **Branch / Commit:** feature/models 4bf20ee (feat: add Course, ContentItem and Profile model classes)
 
+### DL-20 - Course CRUD, database operations (Tracker T-22)
+- **Date:** 2026-10-06
+- **Work performed:** Added create, get_all, get_by_id, update and delete operations to the Course model (backend/models/course.py). Each takes the database connection as its first argument and uses parameterized SQL. Validation (T-25) and exception handling (T-26) are not part of this task.
+- **Result:** A sanity check on a temporary in-memory database printed the expected output: a course was created, read, updated and deleted; deleting it left 0 content rows (cascade); deleting a missing id returned False. This was a sanity check, not a formal test case. The routes for FR-03 to FR-07 are not built yet.
+- **Evidence:** Terminal output of the check.
+- **Branch / Commit:** feature/course-crud b22864d (feat: add course database operations)
+
 ## 24. Requirements Traceability
 
 Chain: Requirement -> Story -> Design -> Implementation -> Test -> Evidence -> Git commit.
-Only the Story and Design columns are filled so far. "pending" means no real evidence exists yet and will be filled as work is completed and verified. NFR-01 to NFR-08 are added later, in the Requirements Traceability Update task.
+The Story and Design columns are filled. The Implementation, Test, Evidence and Commit columns are filled as work is completed and verified. "pending" means no real evidence exists yet and will be filled as work is completed and verified. NFR-01 to NFR-08 are added later, in the Requirements Traceability Update task.
 
 | Requirement | Story | Design (prototype, 7.4) | Implementation | Test | Evidence | Commit |
 |---|---|---|---|---|---|---|
 | FR-01 | US-01 | Screen 5 | pending | pending | pending | pending |
 | FR-02 | US-01 | Screen 5 | pending | pending | pending | pending |
-| FR-03 | US-02 | Screen 2 | pending | pending | pending | pending |
-| FR-04 | US-02 | Screen 2 | pending | pending | pending | pending |
+| FR-03 | US-02 | Screen 2 | Model: Course.create (route pending) | pending | DL-20 (sanity check only) | b22864d |
+| FR-04 | US-02 | Screen 2 | Model: Course.get_all (route pending) | pending | DL-20 (sanity check only) | b22864d |
 | FR-05 | US-03 | Screen 3 | pending | pending | pending | pending |
-| FR-06 | US-04 | Screen 3 | pending | pending | pending | pending |
-| FR-07 | US-04 | Screen 3 | pending | pending | pending | pending |
+| FR-06 | US-04 | Screen 3 | Model: Course.update (route pending) | pending | DL-20 (sanity check only) | b22864d |
+| FR-07 | US-04 | Screen 3 | Model: Course.delete with cascade (route pending) | pending | DL-20 (sanity check only) | b22864d |
 | FR-08 | US-05 | Screen 3, 4 | pending | pending | pending | pending |
 | FR-09 | US-06 | Screen 3, 4 | pending | pending | pending | pending |
 | FR-10 | US-06 | Screen 3 | pending | pending | pending | pending |
@@ -542,6 +549,7 @@ Only the Story and Design columns are filled so far. "pending" means no real evi
 | FR-15 | US-10 | Screen 1 | pending | pending | pending | pending |
 | FR-16 | US-11 | Screen 4 (error text) | pending | pending | pending | pending |
 | FR-17 | US-11 | No screen sketched; error handling designed in section 18.1 | pending | pending | pending | pending |
+
 
 
 
