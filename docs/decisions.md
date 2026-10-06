@@ -70,3 +70,11 @@
 - **Selected approach:** (c).
 - **Reason:** The `backend/` folders, the schema and the documentation exist only on `feature/project-architecture`, so a branch from `main` would not contain them. A separate branch keeps code work apart from the design documents.
 - **Consequences:** Branches depend on each other. At final integration, they are merged into `main` in the order they were created. Nothing is merged before then (D-02).
+
+## D-09 - Content status filter values
+- **Date:** 2026-10-06
+- **Decision:** The status filter on a course's content accepts only the three statuses (Not started, In progress, Completed) or All. There is no separate Pending filter value.
+- **Options considered:** (a) the three statuses only; (b) add a fourth value, Pending, meaning Not started and In progress together.
+- **Selected approach:** (a).
+- **Reason:** Keeps the filter matching the sketched dropdown and the stored values. Pending is still defined in D-04 and is used for the dashboard counts.
+- **Consequences:** To see everything pending, the user filters by Not started and by In progress separately. This can be revisited if it proves awkward.

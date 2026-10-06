@@ -532,6 +532,13 @@ The length limits are working values and may be revisited if implementation show
 - **Evidence:** Terminal output of the check.
 - **Branch / Commit:** feature/content-crud fbeaa87 (feat: add learning content database operations)
 
+### DL-22 - Search and filtering, database operations (Tracker T-24)
+- **Date:** 2026-10-06
+- **Work performed:** Added search (new file backend/models/search.py) and optional type and status filters on ContentItem.get_by_course. Search is a case-insensitive title match (for English letters) over courses and content. It returns the matching courses and the matching content items with their course title. An empty keyword returns nothing, and % and _ are matched literally. Filters ignore unknown or empty values, which means All. Routes, validation and exception handling are not part of this task.
+- **Result:** A sanity check with 11 checks on a temporary in-memory database passed: search for notes and for dbms, empty keyword, literal percent sign, and filters by type, by status, by both, with no match, and with unknown values. The first run did not pass, because git status showed content_item.py unmodified, so the filter change was missing. After writing the file again, all 11 checks passed. This was a sanity check, not a formal test case. The routes for FR-12 and FR-13 are not built yet.
+- **Evidence:** Terminal output showing 11 PASS lines.
+- **Branch / Commit:** feature/search-filter 25ba843 (feat: add search and content filtering operations)
+
 ## 24. Requirements Traceability
 
 Chain: Requirement -> Story -> Design -> Implementation -> Test -> Evidence -> Git commit.
@@ -550,12 +557,13 @@ The Story and Design columns are filled. The Implementation, Test, Evidence and 
 | FR-09 | US-06 | Screen 3, 4 | Model: ContentItem.update (route pending) | pending | DL-21 (sanity check only) | fbeaa87 |
 | FR-10 | US-06 | Screen 3 | Model: ContentItem.delete (route pending) | pending | DL-21 (sanity check only) | fbeaa87 |
 | FR-11 | US-07 | Screen 4 | Model: status set in ContentItem.create and update (route pending) | pending | DL-21 (sanity check only) | fbeaa87 |
-| FR-12 | US-08 | Screen 2 | pending | pending | pending | pending |
-| FR-13 | US-09 | Screen 3 | pending | pending | pending | pending |
+| FR-12 | US-08 | Screen 2 | Model: search() in backend/models/search.py (route pending) | pending | DL-22 (sanity check only) | 25ba843 |
+| FR-13 | US-09 | Screen 3 | Model: ContentItem.get_by_course type and status filters (route pending) | pending | DL-22 (sanity check only) | 25ba843 |
 | FR-14 | US-10 | Screen 1 | pending | pending | pending | pending |
 | FR-15 | US-10 | Screen 1 | pending | pending | pending | pending |
 | FR-16 | US-11 | Screen 4 (error text) | pending | pending | pending | pending |
 | FR-17 | US-11 | No screen sketched; error handling designed in section 18.1 | pending | pending | pending | pending |
+
 
 
 
