@@ -1,0 +1,148 @@
+Course Content Manager - automated test results
+Date: 2026-11-24
+Python: 3.13.3 on Windows 11
+Command: python tests/run_tests.py
+----------------------------------------------------------------------
+test_content_belongs_to_course (tests.test_models.ContentModelTests.test_content_belongs_to_course)
+TC-M14 | FR-05 | Content is listed only under its own course, oldest first ... ok
+test_create_defaults (tests.test_models.ContentModelTests.test_create_defaults)
+TC-M10 | FR-08, FR-11 | New content starts as Not started and counts as pending ... ok
+test_database_rejects_invalid_status (tests.test_models.ContentModelTests.test_database_rejects_invalid_status)
+TC-M13 | FR-16 | The database itself rejects an invalid status or type ... ok
+test_delete (tests.test_models.ContentModelTests.test_delete)
+TC-M12 | FR-10 | Deleting content removes it; a missing id returns False ... ok
+test_update_status (tests.test_models.ContentModelTests.test_update_status)
+TC-M11 | FR-09, FR-11 | Updating content changes its fields and status ... ok
+test_create_and_list (tests.test_models.CourseModelTests.test_create_and_list)
+TC-M05 | FR-03, FR-04 | Courses are created and listed in alphabetical order ... ok
+test_delete_cascades (tests.test_models.CourseModelTests.test_delete_cascades)
+TC-M08 | FR-07, NFR-04 | Deleting a course also deletes its content, leaving no orphans ... ok
+test_delete_missing (tests.test_models.CourseModelTests.test_delete_missing)
+TC-M09 | FR-07 | Deleting a course that does not exist returns False ... ok
+test_get_by_id (tests.test_models.CourseModelTests.test_get_by_id)
+TC-M06 | FR-05 | A course is found by id and a missing id returns None ... ok
+test_update (tests.test_models.CourseModelTests.test_update)
+TC-M07 | FR-06 | Updating a course changes its fields ... ok
+test_dashboard_follows_changes (tests.test_models.DashboardTests.test_dashboard_follows_changes)
+TC-M23 | FR-14 | Dashboard totals follow status changes and course deletion ... ok
+test_empty_database (tests.test_models.DashboardTests.test_empty_database)
+TC-M24 | FR-14 | An empty database gives all-zero totals ... ok
+test_per_course_progress (tests.test_models.DashboardTests.test_per_course_progress)
+TC-M22 | FR-15 | Per-course progress shows completed/total, including courses with no content ... ok
+test_totals (tests.test_models.DashboardTests.test_totals)
+TC-M21 | FR-14 | Dashboard totals count courses, content, completed and pending (D-04) ... ok
+test_get_before_save (tests.test_models.ProfileModelTests.test_get_before_save)
+TC-M01 | FR-02 | There is no profile until one is saved ... ok
+test_save_creates (tests.test_models.ProfileModelTests.test_save_creates)
+TC-M02 | FR-01, FR-02 | Saving creates the profile and it can be read back ... ok
+test_save_replaces (tests.test_models.ProfileModelTests.test_save_replaces)
+TC-M03 | FR-01 | Saving again replaces the profile and keeps a single row ... ok
+test_second_profile_rejected (tests.test_models.ProfileModelTests.test_second_profile_rejected)
+TC-M04 | FR-01 | The database rejects a second profile (id other than 1) ... ok
+test_foreign_keys_enabled (tests.test_models.SafetyTests.test_foreign_keys_enabled)
+TC-M26 | NFR-04 | Every connection from the helper has foreign keys switched on ... ok
+test_sql_text_is_stored_literally (tests.test_models.SafetyTests.test_sql_text_is_stored_literally)
+TC-M25 | NFR-05 | SQL-looking text is stored as plain text and the tables stay intact ... ok
+test_filters (tests.test_models.SearchFilterTests.test_filters)
+TC-M19 | FR-13 | Content can be filtered by type, by status and by both ... ok
+test_search_content_titles (tests.test_models.SearchFilterTests.test_search_content_titles)
+TC-M15 | FR-12 | Search finds content titles and shows the course each belongs to ... ok
+test_search_course_titles_case_insensitive (tests.test_models.SearchFilterTests.test_search_course_titles_case_insensitive)
+TC-M16 | FR-12 | Search finds course titles regardless of letter case ... ok
+test_search_empty_keyword (tests.test_models.SearchFilterTests.test_search_empty_keyword)
+TC-M17 | FR-12 | An empty keyword returns no results ... ok
+test_search_wildcards_are_literal (tests.test_models.SearchFilterTests.test_search_wildcards_are_literal)
+TC-M18 | FR-12 | The characters % and _ are searched literally, not as wildcards ... ok
+test_unknown_filter_values_ignored (tests.test_models.SearchFilterTests.test_unknown_filter_values_ignored)
+TC-M20 | FR-13 | Unknown filter values are treated as All ... ok
+test_add_content (tests.test_routes.ContentRouteTests.test_add_content)
+TC-R12 | FR-08 | Adding content returns to the course page where the new item is listed ... ok
+test_delete_content (tests.test_routes.ContentRouteTests.test_delete_content)
+TC-R14 | FR-10 | Deleting content removes it from the course page ... ok
+test_edit_content_status (tests.test_routes.ContentRouteTests.test_edit_content_status)
+TC-R13 | FR-09, FR-11 | Editing content changes its fields and its status ... ok
+test_filter_selection_is_kept (tests.test_routes.ContentRouteTests.test_filter_selection_is_kept)
+TC-R17 | FR-13 | The filter drop-downs keep the selected values ... ok
+test_filters_via_query_string (tests.test_routes.ContentRouteTests.test_filters_via_query_string)
+TC-R16 | FR-13 | The course page filters content by type and status; unknown values show everything ... ok
+test_invalid_content_rejected (tests.test_routes.ContentRouteTests.test_invalid_content_rejected)
+TC-R15 | FR-16 | Invalid content shows messages, keeps the input and saves nothing ... ok
+test_course_list (tests.test_routes.CourseRouteTests.test_course_list)
+TC-R07 | FR-04 | The course list shows each course with its number of content items ... ok
+test_create_redirects_to_detail (tests.test_routes.CourseRouteTests.test_create_redirects_to_detail)
+TC-R06 | FR-03 | Saving a new course opens that course's detail page (D-04) ... ok
+test_create_validation_error (tests.test_routes.CourseRouteTests.test_create_validation_error)
+TC-R08 | FR-16 | An empty course title shows a message, keeps the input and saves nothing ... ok
+test_delete_course (tests.test_routes.CourseRouteTests.test_delete_course)
+TC-R11 | FR-07 | Deleting a course removes it and its content; the delete URL does not accept GET ... ok
+test_detail_shows_content_and_badges (tests.test_routes.CourseRouteTests.test_detail_shows_content_and_badges)
+TC-R09 | FR-05 | The detail page shows the course, its content, types, status badges and progress ... ok
+test_edit_course (tests.test_routes.CourseRouteTests.test_edit_course)
+TC-R10 | FR-06 | Editing a course saves the change and returns to its detail page ... ok
+test_dashboard_empty (tests.test_routes.DashboardAndProfileRouteTests.test_dashboard_empty)
+TC-R02 | FR-14 | The dashboard works with no data and invites the user to add a course ... ok
+test_dashboard_greets_profile_name (tests.test_routes.DashboardAndProfileRouteTests.test_dashboard_greets_profile_name)
+TC-R05 | FR-02 | The dashboard greets the user by the saved profile name ... ok
+test_dashboard_shows_totals (tests.test_routes.DashboardAndProfileRouteTests.test_dashboard_shows_totals)
+TC-R01 | FR-14, FR-15 | The dashboard shows totals and per-course progress ... ok
+test_profile_invalid_input (tests.test_routes.DashboardAndProfileRouteTests.test_profile_invalid_input)
+TC-R04 | FR-16 | An invalid profile shows messages, keeps the input and saves nothing ... ok
+test_profile_save_and_view (tests.test_routes.DashboardAndProfileRouteTests.test_profile_save_and_view)
+TC-R03 | FR-01, FR-02 | A profile can be saved and is shown again on the profile page ... ok
+test_custom_404_page (tests.test_routes.ErrorHandlingTests.test_custom_404_page)
+TC-R22 | FR-17 | The 404 page is the custom page with a way back to the app ... ok
+test_missing_records_show_friendly_page (tests.test_routes.ErrorHandlingTests.test_missing_records_show_friendly_page)
+TC-R21 | FR-17, NFR-03 | Missing courses or content show a friendly not-found page, not a crash ... ok
+test_unexpected_error_is_friendly (tests.test_routes.ErrorHandlingTests.test_unexpected_error_is_friendly)
+TC-R23 | FR-17, NFR-03 | An unexpected database error shows the custom 500 page without technical details ... ok
+test_every_link_works (tests.test_routes.QualityTests.test_every_link_works)
+TC-R27 | NFR-01, FR-17 | Every internal link on the main pages leads to a working page ... ok
+test_forms_post_to_existing_routes (tests.test_routes.QualityTests.test_forms_post_to_existing_routes)
+TC-R28 | NFR-01 | Every form on the main pages submits to a route that exists ... ok
+test_html_is_escaped (tests.test_routes.QualityTests.test_html_is_escaped)
+TC-R24 | NFR-05 | User text containing HTML is shown as text, not run ... ok
+test_navigation_on_every_page (tests.test_routes.QualityTests.test_navigation_on_every_page)
+TC-R26 | NFR-01 | Every main page offers links to the dashboard, courses and profile, and search ... ok
+test_pages_are_fast_with_many_records (tests.test_routes.QualityTests.test_pages_are_fast_with_many_records)
+TC-R29 | NFR-02 | With 300 courses and 900 content items the main pages respond in under 2 seconds ... ok
+test_unsafe_link_is_not_clickable (tests.test_routes.QualityTests.test_unsafe_link_is_not_clickable)
+TC-R25 | NFR-05 | Only http and https links become clickable links ... ok
+test_search_empty_and_no_match (tests.test_routes.SearchRouteTests.test_search_empty_and_no_match)
+TC-R19 | FR-12 | An empty keyword asks for one, and no match says so ... ok
+test_search_is_case_insensitive (tests.test_routes.SearchRouteTests.test_search_is_case_insensitive)
+TC-R20 | FR-12 | Searching in a different letter case finds the same course ... ok
+test_search_results_grouped (tests.test_routes.SearchRouteTests.test_search_results_grouped)
+TC-R18 | FR-12 | Search results list matching courses and matching content with their course ... ok
+test_clean_filter (tests.test_validation.ValidationTests.test_clean_filter)
+TC-V13 | FR-13 | Unknown or empty filter values are treated as All ... ok
+test_clean_keyword (tests.test_validation.ValidationTests.test_clean_keyword)
+TC-V14 | FR-12 | The search keyword is trimmed and None becomes empty ... ok
+test_content_all_allowed_values (tests.test_validation.ValidationTests.test_content_all_allowed_values)
+TC-V11 | FR-16, FR-11 | Every allowed content type and status is accepted ... ok
+test_content_invalid_status (tests.test_validation.ValidationTests.test_content_invalid_status)
+TC-V10 | FR-16, FR-11 | A status outside the allowed list is rejected ... ok
+test_content_invalid_type (tests.test_validation.ValidationTests.test_content_invalid_type)
+TC-V09 | FR-16 | A content type outside the allowed list is rejected ... ok
+test_content_title_rules (tests.test_validation.ValidationTests.test_content_title_rules)
+TC-V12 | FR-16 | Content title is required (max 150) and link/description is limited to 1000 ... ok
+test_course_empty_title (tests.test_validation.ValidationTests.test_course_empty_title)
+TC-V06 | FR-16 | An empty or whitespace-only course title is rejected ... ok
+test_course_length_limits (tests.test_validation.ValidationTests.test_course_length_limits)
+TC-V08 | FR-16 | Course title (150), description (1000) and category (50) limits are enforced ... ok
+test_course_trimmed (tests.test_validation.ValidationTests.test_course_trimmed)
+TC-V07 | FR-16 | Course input is trimmed and optional fields may be empty ... ok
+test_profile_bad_email (tests.test_validation.ValidationTests.test_profile_bad_email)
+TC-V03 | FR-16 | Invalid email addresses are rejected ... ok
+test_profile_empty_name (tests.test_validation.ValidationTests.test_profile_empty_name)
+TC-V02 | FR-16 | An empty or whitespace-only profile name is rejected ... ok
+test_profile_good_emails (tests.test_validation.ValidationTests.test_profile_good_emails)
+TC-V04 | FR-16 | Reasonable email addresses are accepted ... ok
+test_profile_length_limits (tests.test_validation.ValidationTests.test_profile_length_limits)
+TC-V05 | FR-16 | Profile name over 100 and email over 254 characters are rejected ... ok
+test_profile_valid (tests.test_validation.ValidationTests.test_profile_valid)
+TC-V01 | FR-16 | A profile with a name and a valid email is accepted ... ok
+
+----------------------------------------------------------------------
+Ran 69 tests in 1.057s
+
+OK
