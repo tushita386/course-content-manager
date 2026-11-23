@@ -65,3 +65,27 @@ plus a progress bar for every course. The numbers update as you change statuses.
 ## Good to know
 - Deleting a course cannot be undone.
 - Your data is stored on your own computer in a local database file.
+
+
+## Login and role permissions
+
+### First-time teacher setup
+1. Open PowerShell in the project root and activate the virtual environment.
+2. Set a local secret: `$env:FLASK_SECRET_KEY = "your-long-random-secret"`.
+3. Run `flask --app backend.app create-teacher`.
+4. Enter a teacher username and password when prompted.
+5. Start the app with `flask --app backend.app run` and log in.
+
+### Teacher workflow
+1. Log in with the teacher account.
+2. Open **Students** to create student accounts.
+3. Give each student their username and password privately.
+4. Use Courses to create and maintain course material.
+
+### Student workflow
+1. Log in with the credentials supplied by the teacher.
+2. View the dashboard and courses.
+3. Open a course to read notes and resources.
+4. Use search and filters to find content.
+
+Students have read-only access. Attempts to access teacher-only pages or write endpoints are rejected by the server. There is no public student registration.

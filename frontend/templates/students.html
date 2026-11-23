@@ -1,0 +1,24 @@
+{% extends "base.html" %}
+{% block title %}Students - Course Content Manager{% endblock %}
+{% block content %}
+<div class="page-head"><div><h1>Student accounts</h1><p class="hint">Create and manage read-only student access.</p></div></div>
+{% if created %}<p class="notice">Student account created successfully.</p>{% endif %}
+<section class="card">
+  <h2>Create student account</h2>
+  {% if error %}<p class="error">{{ error }}</p>{% endif %}
+  <form method="post" class="form">
+    <label for="username">Student username</label>
+    <input id="username" name="username" maxlength="80" required>
+    <label for="password">Temporary password (minimum 8 characters)</label>
+    <input id="password" name="password" type="password" minlength="8" required>
+    <button type="submit">Create student</button>
+  </form>
+  <p class="hint">Give the student their username and temporary password privately.</p>
+</section>
+<h2>Existing students</h2>
+{% if students %}
+<div class="table-wrap card"><table><thead><tr><th>Username</th><th>Role</th></tr></thead><tbody>
+{% for student in students %}<tr><td>{{ student.username }}</td><td>Student</td></tr>{% endfor %}
+</tbody></table></div>
+{% else %}<p class="hint">No student accounts have been created yet.</p>{% endif %}
+{% endblock %}

@@ -11,15 +11,24 @@
   <header class="topbar">
     <div class="wrap bar">
       <a class="brand" href="{{ url_for('dashboard') }}"><span class="logo">C</span><span>Course Content Manager</span></a>
+      {% if current_user %}
       <nav aria-label="Main">
         <a href="{{ url_for('dashboard') }}" class="{{ 'active' if ep == 'dashboard' }}">Dashboard</a>
         <a href="{{ url_for('course_list') }}" class="{{ 'active' if ep in ('course_list', 'course_new', 'course_detail', 'course_edit', 'content_new', 'content_edit') }}">Courses</a>
+        {% if current_user.role == 'teacher' %}
+        <a href="{{ url_for('students') }}" class="{{ 'active' if ep == 'students' }}">Students</a>
         <a href="{{ url_for('profile') }}" class="{{ 'active' if ep == 'profile' }}">Profile</a>
+        {% endif %}
       </nav>
+      {% endif %}
+      {% if current_user %}
       <form class="search" action="{{ url_for('search_page') }}" method="get" role="search">
         <input type="search" name="q" placeholder="Search courses and content" aria-label="Search courses and content" value="{{ keyword if keyword is defined else '' }}">
         <button type="submit">Search</button>
       </form>
+      <span class="hint">{{ current_user.username }} · {{ current_user.role|title }}</span>
+      <form method="post" action="{{ url_for('logout') }}"><button class="secondary small" type="submit">Log out</button></form>
+      {% endif %}
     </div>
   </header>
   <main class="wrap">

@@ -8,6 +8,8 @@ from pathlib import Path
 
 from backend.app import app
 from backend.database.db import SCHEMA_PATH, get_connection, init_db
+from backend.models.user import User
+from werkzeug.security import generate_password_hash
 
 
 def memory_db():
@@ -32,6 +34,11 @@ class AppTestCase(unittest.TestCase):
         app.config["DATABASE"] = self.db_path
         app.config["TESTING"] = True
         self.client = app.test_client()
+        init_db(self.db_path)
+        conn = get_connection(self.db_path)
+        User.create(conn, "testteacher", generate_password_hash("teacherpass123"), "teacher")
+        conn.close()
+        self.client.post("/login", data={"username": "testteacher", "password": "teacherpass123"})
 
     def tearDown(self):
         app.config["DATABASE"] = self.previous_db

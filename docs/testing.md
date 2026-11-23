@@ -53,3 +53,7 @@ The date, Python version and operating system of each run are written at the top
 - Looking at the pages in a real browser, and their visual appearance (see the demo checklist in section 33 of the master document).
 - Different browsers and screen sizes.
 - Security testing beyond the checks for escaping HTML, safe links and parameterized SQL.
+
+
+## Authentication and role-based access test coverage
+The authentication tests in `tests/test_auth.py` cover invalid credentials, login/logout, teacher-created student accounts, duplicate usernames, minimum password length, student read access, blocked student write access, unauthenticated redirects, and the absence of public registration. The shared route-test setup now authenticates as a temporary teacher account in each isolated test database. These tests use temporary databases and do not modify the local project database.

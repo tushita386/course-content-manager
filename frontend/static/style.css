@@ -127,3 +127,8 @@ ul.plain li { background: #fff; border: 1px solid var(--line); border-radius: 10
   h1 { font-size: 1.45rem; }
   .filters label { min-width: 140px; flex: 1; }
 }
+
+.auth-card { max-width: 440px; margin: 48px auto; }
+.auth-card .form { margin-top: 18px; }
+.auth-card button { width: 100%; margin-top: 8px; }
+.error { color: var(--danger); background: #fff1f1; border: 1px solid #f2caca; border-radius: 8px; padding: 9px 12px; }

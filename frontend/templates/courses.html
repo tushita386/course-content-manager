@@ -4,7 +4,7 @@
 {% block content %}
 <div class="page-head">
   <div><h1>Courses</h1><p class="hint">{{ courses|length }} in total</p></div>
-  <a class="button" href="{{ url_for('course_new') }}">+ Add course</a>
+  {% if current_user.role == 'teacher' %}<a class="button" href="{{ url_for('course_new') }}">+ Add course</a>{% endif %}
 </div>
 {% if courses %}
 <div class="grid">
@@ -25,8 +25,10 @@
 {% else %}
 <section class="empty-state">
   <h3>No courses yet</h3>
+  {% if current_user.role == 'teacher' %}
   <p>Use "Add course" to create one.</p>
   <p class="actions center"><a class="button" href="{{ url_for('course_new') }}">+ Add course</a></p>
+  {% else %}<p>Your teacher has not added any courses yet.</p>{% endif %}
 </section>
 {% endif %}
 {% endblock %}

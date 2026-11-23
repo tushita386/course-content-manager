@@ -24,3 +24,11 @@ CREATE TABLE IF NOT EXISTS content_item (
     created_at          TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,
     FOREIGN KEY (course_id) REFERENCES course(id) ON DELETE CASCADE
 );
+
+CREATE TABLE IF NOT EXISTS app_user (
+    id            INTEGER PRIMARY KEY AUTOINCREMENT,
+    username      TEXT NOT NULL UNIQUE COLLATE NOCASE,
+    password_hash TEXT NOT NULL,
+    role          TEXT NOT NULL CHECK (role IN ('teacher', 'student')),
+    created_at    TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP
+);

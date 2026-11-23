@@ -4,10 +4,10 @@
 {% block content %}
 <section class="hero">
   <div>
-    <h1>{% if profile %}Welcome back, {{ profile.name }}{% else %}Dashboard{% endif %}</h1>
+    <h1>{% if current_user.role == 'teacher' and profile %}Welcome back, {{ profile.name }}{% else %}Welcome, {{ current_user.username }}{% endif %}</h1>
     <p>Your learning content at a glance.</p>
   </div>
-  <a class="button light" href="{{ url_for('course_new') }}">+ Add course</a>
+  {% if current_user.role == 'teacher' %}<a class="button light" href="{{ url_for('course_new') }}">+ Add course</a>{% endif %}
 </section>
 
 <div class="stats">
@@ -37,8 +37,10 @@
 {% else %}
 <section class="empty-state">
   <h3>No courses yet</h3>
+  {% if current_user.role == 'teacher' %}
   <p>Create your first course to start organizing your learning content.</p>
   <p class="actions center"><a class="button" href="{{ url_for('course_new') }}">Add your first course</a></p>
+  {% else %}<p>Your teacher has not added any courses yet.</p>{% endif %}
 </section>
 {% endif %}
 {% endblock %}

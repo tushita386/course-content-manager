@@ -61,3 +61,22 @@ PROJECT_MASTER_DOCUMENT.md   The complete engineering record of the project
 ## Limitations
 One profile and no login, search covers titles only, content types are a fixed list, and the app runs on
 Flask's development server with a local SQLite file. See section 31 of the master document.
+
+
+## Authentication and roles
+
+The application has two roles:
+- **Teacher:** can create student accounts and create, edit and delete courses and learning content.
+- **Student:** can view courses and learning content and use search/filter. Students cannot modify records.
+
+There is no public registration. Create the first teacher account from the project root:
+
+```powershell
+$env:FLASK_SECRET_KEY = "replace-with-a-long-random-secret"
+flask --app backend.app create-teacher
+flask --app backend.app run
+```
+
+The command prompts for a teacher username and password. The password is stored as a one-way hash. After logging in, the teacher can open **Students** and create student accounts. Share student credentials privately.
+
+For a persistent local secret, set `FLASK_SECRET_KEY` in your environment before starting Flask. Do not use the development fallback in a deployed environment.

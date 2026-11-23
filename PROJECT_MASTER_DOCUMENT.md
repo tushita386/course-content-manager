@@ -21,7 +21,9 @@ Note: this is a problem framing, not the result of user research.
 7. Keep a traceable engineering record: Git history, tests, decision log, documentation.
 
 ## 4. Scope
-- User/profile management
+- Teacher and student accounts with role-based access
+- Teacher-managed student account creation
+- User/profile management (teacher profile)
 - Course records with CRUD
 - Learning content records with CRUD
 - Search and filter
@@ -31,7 +33,8 @@ Note: this is a problem framing, not the result of user research.
 - README (written at the end, per the project guide)
 
 ## 5. Out of Scope
-- Complex authentication or role permissions
+- Public student self-registration
+- Student editing of courses, notes or profile data
 - Payments
 - Video or file hosting
 - AI features
@@ -43,7 +46,8 @@ Note: this is a problem framing, not the result of user research.
 | Stakeholder | Role | Needs from the app |
 |---|---|---|
 | User | Primary user. Creates and manages their own profile, courses and learning content. | Create and update records, search and filter, keep information current. |
-| Mentor/Admin | Reviews activity. | Simple reports and a dashboard showing activity and pending work. |
+| Teacher | Owns course content and manages student accounts. | Create and manage courses/content; create student accounts; view dashboard. |
+| Student | Consumes learning materials. | Log in, view courses and notes, search and filter; no write access. |
 | Project guide / evaluator | Not an app user. Assesses the project. | A working demo, clear documentation, a traceable Git history. |
 
 The User and Mentor/Admin roles come from the college's suggested user stories. The project guide / evaluator is a project stakeholder, not an application user. This analysis is not based on interviews or surveys.
@@ -154,8 +158,27 @@ Low-fidelity screen sketches. The names and numbers are placeholders for layout 
 | FR-15 | Dashboard per-course progress (completed / total). | Idea 7 |
 | FR-16 | Validate input: reject an empty title or invalid email, and invalid type or status values, with a clear message. | Idea 8 |
 | FR-17 | Handle errors without crashing: a friendly message for a missing record or an unexpected error. | College requirement |
+| FR-18 | Authenticate teachers and students using username and password. | Updated role-based access decision |
+| FR-19 | Allow only teachers to create student accounts; public registration is unavailable. | Updated role-based access decision |
+| FR-20 | Allow students to view courses/content and search/filter, but reject all create, edit and delete operations. | Updated role-based access decision |
+| FR-21 | Restrict course/content/profile management and student account management to teachers. | Updated role-based access decision |
 
-Ideas refer to section 7.3. Decisions affecting these requirements are recorded in D-04.
+Ideas refer to section 7.3. The original no-login portion of D-04 is superseded by D-11; the other D-04 decisions remain in force.
+## 8.1 Authentication and authorization requirements
+- Passwords are stored as one-way password hashes, never as plaintext.
+- Login state is held in a Flask session with HTTP-only and SameSite cookie settings.
+- The first teacher account is provisioned through a terminal-only Flask CLI command; there is no public teacher registration.
+- A teacher creates student accounts and shares their credentials privately.
+- Authorization is enforced by backend route guards. Hiding controls in HTML is only a usability measure, not the security boundary.
+- Students can access the dashboard, course list, course detail and search. Students cannot access profile editing, student management, or any write route.
+
+### Additional user stories
+| ID | Story | Covers |
+|---|---|---|
+| US-12 | As a teacher, I want to log in securely so that only authorized staff can manage learning content. | FR-18, FR-21 |
+| US-13 | As a teacher, I want to create student accounts so that students can access the materials. | FR-19 |
+| US-14 | As a student, I want to view and search course notes without being able to change them. | FR-20 |
+
 ## 9. Non-Functional Requirements
 
 | ID | Category | Requirement |
@@ -168,6 +191,8 @@ Ideas refer to section 7.3. Decisions affecting these requirements are recorded 
 | NFR-06 | Maintainability | Code follows the frontend/backend structure from D-01, with meaningful names and short comments where needed. |
 | NFR-07 | Portability | The app runs locally on Windows with Python and `pip install -r requirements.txt`, and needs no database server. |
 | NFR-08 | Testability | Core functions have basic automated tests in the `tests/` folder. |
+| NFR-09 | Authentication | Passwords are hashed and login sessions are protected with secure cookie settings. |
+| NFR-10 | Authorization | Every write route checks the teacher role on the server, regardless of UI visibility. |
 
 These are targets. Each is verified during testing, and none is claimed as met yet.
 ## 10. User Stories
@@ -203,6 +228,9 @@ US-01 and US-10 follow the college's suggested user stories. Roles come from sec
 | US-09 | Filtering by type and/or status lists only matching items. Pending means Not started or In progress (D-04). |
 | US-10 | The dashboard shows totals for courses, content, completed and pending, plus completed/total per course. |
 | US-11 | An empty title, an invalid email, or an invalid type or status is rejected with a clear message. A missing record shows a friendly message, not a crash. |
+| US-12 | Valid teacher/student credentials create a session; invalid credentials are rejected; logout clears the session. |
+| US-13 | A teacher can create a student account; duplicate usernames and passwords shorter than 8 characters are rejected. |
+| US-14 | A student can view courses/content and search, but direct requests to teacher-only pages and write routes are rejected. |
 ## 12. Agile Development Approach
 The project was built incrementally. The guide asked for an Agile approach, so the current state of the project, not a fixed plan, decided the next task.
 
@@ -342,6 +370,10 @@ See D-01 in `docs/decisions.md`.
 | GET, POST | `/content/<id>/edit` | Edit content, including its status | FR-09, FR-11 |
 | POST | `/content/<id>/delete` | Delete content | FR-10 |
 | GET | `/search?q=` | Search course and content titles | FR-12 |
+| GET, POST | `/login` | Authenticate teacher or student | FR-18 |
+| POST | `/logout` | End the current session | FR-18 |
+| GET, POST | `/students` | Teacher creates and lists student accounts | FR-19, FR-21 |
+| (CLI) | `create-teacher` | Provision the first teacher account from the terminal | FR-18 |
 | (handlers) | 404 and 500 | Friendly error pages | FR-17 |
 
 Browser forms only send GET and POST, so every change is a POST. Deletes are never GET (D-07).
@@ -875,3 +907,19 @@ Suggested demo order, with a box to tick once it has been tried:
 - **What did testing show?** 69 of 69 automated tests passed in the recorded run. One earlier defect (BUG-01) was caught by a check during development.
 - **What are the limits?** One profile, no login, title-only search, development server (section 31).
 - **What would you improve?** Accounts, richer search, tags, pagination, export (section 32).
+
+
+## 36. Role-based authentication update (2026-11-24)
+The original D-04 decision specified one profile and no login. The project owner later changed the required application model to two roles: Teacher and Student. This update supersedes only the no-login portion of D-04. The historical decision remains in the decision log for traceability.
+
+- Teachers authenticate with a username and password, create student accounts, and manage courses/content.
+- Students authenticate with credentials created by a teacher and have read-only access to the dashboard, courses, course content, search and filters.
+- Students cannot create accounts, edit profiles, or perform create/update/delete operations.
+- Passwords are stored as Werkzeug password hashes. Flask sessions identify the authenticated user.
+- The initial teacher account is created from the command line using `flask --app backend.app create-teacher`.
+- `FLASK_SECRET_KEY` must be set to a long random secret before deployment. The built-in fallback is for local development only.
+- Public self-registration is intentionally not implemented.
+
+
+### Authentication data model
+The `app_user` table stores `id`, unique case-insensitive `username`, `password_hash`, `role` (`teacher` or `student`) and `created_at`. It is separate from the existing single teacher profile record. Password hashes are generated by Werkzeug; raw passwords are never written to SQLite. The database constraint rejects duplicate usernames and roles outside the two supported values.

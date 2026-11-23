@@ -3,6 +3,13 @@ Date: 2026-11-24
 Python: 3.13.3 on Windows 11
 Command: python tests/run_tests.py
 ----------------------------------------------------------------------
+test_login_and_logout (tests.test_auth.AuthenticationAndRoleTests.test_login_and_logout) ... ok
+test_login_rejects_invalid_credentials (tests.test_auth.AuthenticationAndRoleTests.test_login_rejects_invalid_credentials) ... ok
+test_student_can_read_but_cannot_mutate (tests.test_auth.AuthenticationAndRoleTests.test_student_can_read_but_cannot_mutate) ... ok
+test_students_cannot_register_or_assign_themselves_teacher (tests.test_auth.AuthenticationAndRoleTests.test_students_cannot_register_or_assign_themselves_teacher) ... ok
+test_teacher_can_create_student (tests.test_auth.AuthenticationAndRoleTests.test_teacher_can_create_student) ... ok
+test_teacher_cannot_create_short_password_or_duplicate (tests.test_auth.AuthenticationAndRoleTests.test_teacher_cannot_create_short_password_or_duplicate) ... ok
+test_unauthenticated_users_are_redirected_to_login (tests.test_auth.AuthenticationAndRoleTests.test_unauthenticated_users_are_redirected_to_login) ... ok
 test_content_belongs_to_course (tests.test_models.ContentModelTests.test_content_belongs_to_course)
 TC-M14 | FR-05 | Content is listed only under its own course, oldest first ... ok
 test_create_defaults (tests.test_models.ContentModelTests.test_create_defaults)
@@ -143,6 +150,6 @@ test_profile_valid (tests.test_validation.ValidationTests.test_profile_valid)
 TC-V01 | FR-16 | A profile with a name and a valid email is accepted ... ok
 
 ----------------------------------------------------------------------
-Ran 69 tests in 0.983s
+Ran 76 tests in 12.738s
 
 OK

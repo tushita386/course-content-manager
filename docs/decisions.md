@@ -89,3 +89,12 @@
 - **Selected approach:** As above.
 - **Reason:** One central place for error handling is simpler and gives the same result for the user, who never sees a raw database error. Search in the navigation bar is available everywhere (NFR-01). HTTP 400 is the correct status for rejected input and is easy to test.
 - **Consequences:** Model methods let database errors propagate to the error handler. Section 18.1 was updated to say so.
+
+
+## D-11 - Teacher/student authentication and permissions
+- **Date:** 2026-11-24
+- **Decision:** Add username/password login with two roles: Teacher and Student. Teachers create student accounts. Teachers have full course/content management access; students have read-only access to courses and learning content.
+- **Selected approach:** Store users in an `app_user` SQLite table with a unique username, Werkzeug password hash and constrained role. Use Flask sessions for login state and backend decorators to enforce authorization. Create the initial teacher account using a terminal CLI command; do not expose public registration.
+- **Reason:** The project owner clarified that teachers must manage learning content while students should only read notes and other resources.
+- **Consequences:** The no-login portion of D-04 is superseded. The database gains an `app_user` table; the UI gains login, logout and teacher-only student management pages; route and role tests are required. Students can access the dashboard, courses, course details and search, but not profile editing or write operations.
+- **Security notes:** Passwords are never stored in plaintext. `FLASK_SECRET_KEY` must be configured with a long random value outside local development. Server-side authorization is mandatory; hiding controls alone is insufficient.
