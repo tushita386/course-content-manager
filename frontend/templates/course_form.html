@@ -1,0 +1,24 @@
+{% extends "base.html" %}
+{% from "_macros.html" import field_error %}
+{% block title %}{{ heading }} - Course Content Manager{% endblock %}
+{% block content %}
+<div class="page-head"><h1>{{ heading }}</h1></div>
+<form method="post" class="form card">
+  <label for="title">Title <span class="req">*</span></label>
+  <input id="title" name="title" value="{{ values.title }}" maxlength="400" placeholder="For example: Database Management Systems">
+  {{ field_error(errors, 'title') }}
+
+  <label for="category">Category</label>
+  <input id="category" name="category" value="{{ values.category }}" maxlength="400" placeholder="For example: Core subject">
+  {{ field_error(errors, 'category') }}
+
+  <label for="description">Description</label>
+  <textarea id="description" name="description" rows="4" placeholder="What is this course about?">{{ values.description }}</textarea>
+  {{ field_error(errors, 'description') }}
+
+  <div class="actions">
+    <button type="submit">Save course</button>
+    <a class="button secondary" href="{{ url_for('course_list') }}">Cancel</a>
+  </div>
+</form>
+{% endblock %}

@@ -1,0 +1,18 @@
+{% extends "base.html" %}
+{% from "_macros.html" import field_error %}
+{% block title %}Profile - Course Content Manager{% endblock %}
+{% block content %}
+<div class="page-head"><h1>Profile</h1></div>
+{% if saved %}<p class="notice">Profile saved.</p>{% endif %}
+<form method="post" class="form card">
+  <label for="name">Name <span class="req">*</span></label>
+  <input id="name" name="name" value="{{ values.name }}" maxlength="400" placeholder="Your name">
+  {{ field_error(errors, 'name') }}
+
+  <label for="email">Email <span class="req">*</span></label>
+  <input id="email" name="email" value="{{ values.email }}" maxlength="400" placeholder="name@example.com">
+  {{ field_error(errors, 'email') }}
+
+  <div class="actions"><button type="submit">Save profile</button></div>
+</form>
+{% endblock %}

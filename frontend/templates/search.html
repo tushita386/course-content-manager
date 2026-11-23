@@ -1,0 +1,41 @@
+{% extends "base.html" %}
+{% from "_macros.html" import badge %}
+{% block title %}Search - Course Content Manager{% endblock %}
+{% block content %}
+<div class="page-head"><h1>Search</h1></div>
+{% if not keyword %}
+<section class="empty-state"><h3>Enter a keyword</h3><p>Enter a keyword to search course and content titles.</p></section>
+{% else %}
+<p class="hint">Results for "{{ keyword }}"</p>
+<h2>Courses</h2>
+{% if results.courses %}
+<ul class="plain">
+  {% for course in results.courses %}
+  <li><a href="{{ url_for('course_detail', course_id=course.id) }}">{{ course.title }}</a></li>
+  {% endfor %}
+</ul>
+{% else %}<p class="hint">No matching courses.</p>{% endif %}
+
+<h2>Content</h2>
+{% if results.content %}
+<div class="table-wrap">
+<table>
+  <thead><tr><th>Title</th><th>Type</th><th>Status</th><th>Course</th></tr></thead>
+  <tbody>
+  {% for item, course_title in results.content %}
+    <tr>
+      <td class="strong">{{ item.title }}</td>
+      <td>{{ item.content_type }}</td>
+      <td>{{ badge(item.status) }}</td>
+      <td><a href="{{ url_for('course_detail', course_id=item.course_id) }}">{{ course_title }}</a></td>
+    </tr>
+  {% endfor %}
+  </tbody>
+</table>
+</div>
+{% else %}<p class="hint">No matching content.</p>{% endif %}
+{% if not results.courses and not results.content %}
+<section class="empty-state"><h3>No results found</h3><p>Try a different keyword.</p></section>
+{% endif %}
+{% endif %}
+{% endblock %}

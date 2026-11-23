@@ -1,0 +1,10 @@
+{% extends "base.html" %}
+{% block title %}{{ title }} - Course Content Manager{% endblock %}
+{% block content %}
+<section class="empty-state">
+  <div class="code">{{ code }}</div>
+  <h1>{{ title }}</h1>
+  <p>{{ message }}</p>
+  <p class="actions center"><a class="button" href="{{ url_for('dashboard') }}">Back to the dashboard</a></p>
+</section>
+{% endblock %}

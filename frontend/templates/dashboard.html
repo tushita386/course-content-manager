@@ -1,0 +1,44 @@
+{% extends "base.html" %}
+{% from "_macros.html" import progress %}
+{% block title %}Dashboard - Course Content Manager{% endblock %}
+{% block content %}
+<section class="hero">
+  <div>
+    <h1>{% if profile %}Welcome back, {{ profile.name }}{% else %}Dashboard{% endif %}</h1>
+    <p>Your learning content at a glance.</p>
+  </div>
+  <a class="button light" href="{{ url_for('course_new') }}">+ Add course</a>
+</section>
+
+<div class="stats">
+  <div class="stat"><span class="num">{{ data.total_courses }}</span><span>Courses</span></div>
+  <div class="stat"><span class="num">{{ data.total_content }}</span><span>Content items</span></div>
+  <div class="stat stat-done"><span class="num">{{ data.completed }}</span><span>Completed</span></div>
+  <div class="stat stat-pending"><span class="num">{{ data.pending }}</span><span>Pending</span></div>
+</div>
+<p class="hint">Pending means Not started or In progress.</p>
+
+<h2>Progress by course</h2>
+{% if data.per_course %}
+<div class="table-wrap">
+<table>
+  <thead><tr><th>Course</th><th>Completed</th><th class="wide">Progress</th></tr></thead>
+  <tbody>
+  {% for row in data.per_course %}
+    <tr>
+      <td><a href="{{ url_for('course_detail', course_id=row.course_id) }}">{{ row.title }}</a></td>
+      <td>{{ row.completed }} / {{ row.total }}</td>
+      <td>{{ progress(row.completed, row.total) }}</td>
+    </tr>
+  {% endfor %}
+  </tbody>
+</table>
+</div>
+{% else %}
+<section class="empty-state">
+  <h3>No courses yet</h3>
+  <p>Create your first course to start organizing your learning content.</p>
+  <p class="actions center"><a class="button" href="{{ url_for('course_new') }}">Add your first course</a></p>
+</section>
+{% endif %}
+{% endblock %}

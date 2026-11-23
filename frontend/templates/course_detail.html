@@ -1,0 +1,83 @@
+{% extends "base.html" %}
+{% from "_macros.html" import badge, progress %}
+{% block title %}{{ course.title }} - Course Content Manager{% endblock %}
+{% block content %}
+<p class="crumbs"><a href="{{ url_for('course_list') }}">Courses</a> / {{ course.title }}</p>
+<section class="card course-head">
+  <div class="page-head">
+    <div>
+      <h1>{{ course.title }}</h1>
+      {% if course.category %}<span class="chip">{{ course.category }}</span>{% endif %}
+    </div>
+    <div class="actions">
+      <a class="button secondary" href="{{ url_for('course_edit', course_id=course.id) }}">Edit course</a>
+      <form method="post" action="{{ url_for('course_delete', course_id=course.id) }}" onsubmit="return confirm('Delete this course and all its content?');">
+        <button type="submit" class="danger">Delete course</button>
+      </form>
+    </div>
+  </div>
+  {% if course.description %}<p>{{ course.description }}</p>{% endif %}
+  <div class="course-progress">
+    <span>{{ done }} of {{ total }} completed</span>
+    {{ progress(done, total) }}
+  </div>
+</section>
+
+<div class="page-head">
+  <h2>Learning content</h2>
+  <a class="button" href="{{ url_for('content_new', course_id=course.id) }}">+ Add content</a>
+</div>
+
+<form method="get" class="filters card">
+  <label>Type
+    <select name="type">
+      <option value="">All</option>
+      {% for t in types %}<option value="{{ t }}" {{ 'selected' if t == selected_type }}>{{ t }}</option>{% endfor %}
+    </select>
+  </label>
+  <label>Status
+    <select name="status">
+      <option value="">All</option>
+      {% for s in statuses %}<option value="{{ s }}" {{ 'selected' if s == selected_status }}>{{ s }}</option>{% endfor %}
+    </select>
+  </label>
+  <button type="submit">Filter</button>
+  <a href="{{ url_for('course_detail', course_id=course.id) }}">Clear</a>
+</form>
+
+{% if items %}
+<div class="table-wrap">
+<table>
+  <thead><tr><th>Title</th><th>Type</th><th>Status</th><th>Link / description</th><th></th></tr></thead>
+  <tbody>
+  {% for item in items %}
+    <tr>
+      <td class="strong">{{ item.title }}</td>
+      <td>{{ item.content_type }}</td>
+      <td>{{ badge(item.status) }}</td>
+      <td>
+        {% set value = item.link_or_description or '' %}
+        {% if item.content_type == 'Link' and (value.lower().startswith('http://') or value.lower().startswith('https://')) %}
+          <a href="{{ value }}" rel="noopener noreferrer" target="_blank">{{ value }}</a>
+        {% else %}{{ value }}{% endif %}
+      </td>
+      <td class="row-actions">
+        <a class="button secondary small" href="{{ url_for('content_edit', item_id=item.id) }}">Edit</a>
+        <form method="post" action="{{ url_for('content_delete', item_id=item.id) }}" onsubmit="return confirm('Delete this content item?');">
+          <button type="submit" class="danger small">Delete</button>
+        </form>
+      </td>
+    </tr>
+  {% endfor %}
+  </tbody>
+</table>
+</div>
+{% elif selected_type or selected_status %}
+<section class="empty-state"><h3>No content matches this filter.</h3><p>Try a different type or status, or clear the filter.</p></section>
+{% else %}
+<section class="empty-state">
+  <h3>No content yet</h3>
+  <p>Use "Add content" to add a note, link, PDF reference or assignment resource.</p>
+</section>
+{% endif %}
+{% endblock %}

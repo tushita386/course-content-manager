@@ -6,17 +6,20 @@ DATABASE_PATH = DB_DIR / "course_content.db"
 SCHEMA_PATH = DB_DIR / "schema.sql"
 
 
-def get_connection():
-    """Open a SQLite connection with foreign keys enforced."""
-    conn = sqlite3.connect(DATABASE_PATH)
+def get_connection(path=None):
+    """Open a SQLite connection with foreign keys enforced.
+
+    path is optional so tests can use a temporary database file.
+    """
+    conn = sqlite3.connect(path or DATABASE_PATH)
     conn.row_factory = sqlite3.Row
     conn.execute("PRAGMA foreign_keys = ON")
     return conn
 
 
-def init_db():
+def init_db(path=None):
     """Create the tables from schema.sql if they do not exist."""
-    conn = get_connection()
+    conn = get_connection(path)
     try:
         conn.executescript(SCHEMA_PATH.read_text(encoding="utf-8"))
         conn.commit()

@@ -1,0 +1,10 @@
+{% extends "base.html" %}
+{% block title %}Something went wrong - Course Content Manager{% endblock %}
+{% block content %}
+<section class="empty-state">
+  <div class="code">500</div>
+  <h1>Something went wrong</h1>
+  <p>An unexpected error occurred. Please try again.</p>
+  <p class="actions center"><a class="button" href="{{ url_for('dashboard') }}">Back to the dashboard</a></p>
+</section>
+{% endblock %}

@@ -1,0 +1,33 @@
+{% extends "base.html" %}
+{% from "_macros.html" import field_error %}
+{% block title %}{{ heading }} - Course Content Manager{% endblock %}
+{% block content %}
+<p class="crumbs"><a href="{{ url_for('course_list') }}">Courses</a> / <a href="{{ url_for('course_detail', course_id=course.id) }}">{{ course.title }}</a> / {{ heading }}</p>
+<div class="page-head"><h1>{{ heading }}</h1></div>
+<form method="post" class="form card">
+  <label for="title">Title <span class="req">*</span></label>
+  <input id="title" name="title" value="{{ values.title }}" maxlength="400" placeholder="For example: Normalization notes">
+  {{ field_error(errors, 'title') }}
+
+  <label for="content_type">Type <span class="req">*</span></label>
+  <select id="content_type" name="content_type">
+    {% for t in types %}<option value="{{ t }}" {{ 'selected' if t == values.content_type }}>{{ t }}</option>{% endfor %}
+  </select>
+  {{ field_error(errors, 'content_type') }}
+
+  <label for="link_or_description">Link or description</label>
+  <textarea id="link_or_description" name="link_or_description" rows="3" placeholder="A web address (https://...) or a short description">{{ values.link_or_description }}</textarea>
+  {{ field_error(errors, 'link_or_description') }}
+
+  <label for="status">Status <span class="req">*</span></label>
+  <select id="status" name="status">
+    {% for s in statuses %}<option value="{{ s }}" {{ 'selected' if s == values.status }}>{{ s }}</option>{% endfor %}
+  </select>
+  {{ field_error(errors, 'status') }}
+
+  <div class="actions">
+    <button type="submit">Save content</button>
+    <a class="button secondary" href="{{ url_for('course_detail', course_id=course.id) }}">Cancel</a>
+  </div>
+</form>
+{% endblock %}

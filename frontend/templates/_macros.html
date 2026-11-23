@@ -1,0 +1,13 @@
+{% macro badge(status) -%}
+<span class="badge badge-{{ status|lower|replace(' ', '-') }}">{{ status }}</span>
+{%- endmacro %}
+
+{% macro field_error(errors, name) -%}
+{% if errors.get(name) %}<p class="error" id="error-{{ name }}">{{ errors[name] }}</p>{% endif %}
+{%- endmacro %}
+
+{% macro progress(done, total) -%}
+<div class="progress" role="progressbar" aria-valuemin="0" aria-valuemax="100" aria-valuenow="{{ (done * 100 // total) if total else 0 }}">
+  <div class="progress-fill" style="width: {{ (done * 100 // total) if total else 0 }}%"></div>
+</div>
+{%- endmacro %}

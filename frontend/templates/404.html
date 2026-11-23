@@ -1,0 +1,13 @@
+{% extends "base.html" %}
+{% block title %}Page not found - Course Content Manager{% endblock %}
+{% block content %}
+<section class="empty-state">
+  <div class="code">404</div>
+  <h1>Page not found</h1>
+  <p>The page or record you asked for does not exist. It may have been deleted.</p>
+  <p class="actions center">
+    <a class="button" href="{{ url_for('dashboard') }}">Back to the dashboard</a>
+    <a class="button secondary" href="{{ url_for('course_list') }}">View courses</a>
+  </p>
+</section>
+{% endblock %}

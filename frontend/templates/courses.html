@@ -1,0 +1,32 @@
+{% extends "base.html" %}
+{% from "_macros.html" import progress %}
+{% block title %}Courses - Course Content Manager{% endblock %}
+{% block content %}
+<div class="page-head">
+  <div><h1>Courses</h1><p class="hint">{{ courses|length }} in total</p></div>
+  <a class="button" href="{{ url_for('course_new') }}">+ Add course</a>
+</div>
+{% if courses %}
+<div class="grid">
+  {% for course in courses %}
+    {% set p = stats.get(course.id) %}
+    <article class="card course-card">
+      <h3><a href="{{ url_for('course_detail', course_id=course.id) }}">{{ course.title }}</a></h3>
+      {% if course.category %}<span class="chip">{{ course.category }}</span>{% endif %}
+      {% if course.description %}<p class="desc">{{ course.description|truncate(110) }}</p>{% endif %}
+      <div class="card-foot">
+        <span>{{ p.total if p else 0 }} items</span>
+        <span class="hint">{{ p.completed if p else 0 }} completed</span>
+      </div>
+      {{ progress(p.completed if p else 0, p.total if p else 0) }}
+    </article>
+  {% endfor %}
+</div>
+{% else %}
+<section class="empty-state">
+  <h3>No courses yet</h3>
+  <p>Use "Add course" to create one.</p>
+  <p class="actions center"><a class="button" href="{{ url_for('course_new') }}">+ Add course</a></p>
+</section>
+{% endif %}
+{% endblock %}

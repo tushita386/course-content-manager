@@ -1,0 +1,30 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>{% block title %}Course Content Manager{% endblock %}</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+  {% set ep = request.endpoint or '' %}
+  <header class="topbar">
+    <div class="wrap bar">
+      <a class="brand" href="{{ url_for('dashboard') }}"><span class="logo">C</span><span>Course Content Manager</span></a>
+      <nav aria-label="Main">
+        <a href="{{ url_for('dashboard') }}" class="{{ 'active' if ep == 'dashboard' }}">Dashboard</a>
+        <a href="{{ url_for('course_list') }}" class="{{ 'active' if ep in ('course_list', 'course_new', 'course_detail', 'course_edit', 'content_new', 'content_edit') }}">Courses</a>
+        <a href="{{ url_for('profile') }}" class="{{ 'active' if ep == 'profile' }}">Profile</a>
+      </nav>
+      <form class="search" action="{{ url_for('search_page') }}" method="get" role="search">
+        <input type="search" name="q" placeholder="Search courses and content" aria-label="Search courses and content" value="{{ keyword if keyword is defined else '' }}">
+        <button type="submit">Search</button>
+      </form>
+    </div>
+  </header>
+  <main class="wrap">
+    {% block content %}{% endblock %}
+  </main>
+  <footer class="footer"><div class="wrap">Course Content Manager &middot; college project PRJ-B058</div></footer>
+</body>
+</html>
