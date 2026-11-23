@@ -598,6 +598,14 @@ The length limits are working values and may be revisited if implementation show
 - **Branch / Commit:** feature/testing 1621f49 (test: add automated test suite and testing guide)
 
 
+### DL-28 - README, guides and final documentation (Tracker T-34 to T-37)
+- **Date:** 2026-11-24
+- **Work performed:** Added README.md, docs/user_manual.md and docs/installation_guide.md, and in the master document the Agile approach, decision summary, bug log, testing log, traceability matrix with tests, NFR verification, Git strategy, project status, demo notes and viva preparation. Ran the full test suite again (regression run).
+- **Result:** Run 2: 69 of 69 tests passed.
+- **Evidence:** docs/test_results.txt (written by the run)
+- **Branch / Commit:** feature/final-docs b4193cf (docs: add README, guides, testing log, project status and traceability)
+
+
 ## 21. Decision Log
 The full decisions, with options, reasons and consequences, are in `docs/decisions.md`.
 
