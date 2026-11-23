@@ -1,4 +1,4 @@
-﻿# Course Content Manager - Project Master Document
+# Course Content Manager - Project Master Document
 
 > This document is maintained throughout the project and is the central engineering record.
 
@@ -203,6 +203,25 @@ US-01 and US-10 follow the college's suggested user stories. Roles come from sec
 | US-09 | Filtering by type and/or status lists only matching items. Pending means Not started or In progress (D-04). |
 | US-10 | The dashboard shows totals for courses, content, completed and pending, plus completed/total per course. |
 | US-11 | An empty title, an invalid email, or an invalid type or status is rejected with a clear message. A missing record shows a friendly message, not a crash. |
+## 12. Agile Development Approach
+The project was built incrementally. The guide asked for an Agile approach, so the current state of the project, not a fixed plan, decided the next task.
+
+For every task the same cycle was followed:
+1. Pick the next task from the Excel tracker, checking what it depends on.
+2. Implement it on a feature branch.
+3. Verify it with real evidence (command output, a check, or a test).
+4. Record it in the Development Log with the real commit.
+5. Update the tracker, commit and push.
+
+Sequential and parallel work:
+```text
+Requirements -> Design -> Database -> Models -> CRUD -> Search/Filter, Dashboard, Profile -> Validation -> Web UI -> Testing -> Documentation
+```
+Search/filter, dashboard and profile depended only on the models, so they could be done in any order (parallel in principle).
+Validation had to precede the web UI because the forms use it. Testing followed the web UI.
+
+The dates in the Excel tracker come from the original plan. The actual dates are in the Git history and in the Development Log.
+
 ## 13. System Architecture
 
 ```text
@@ -346,7 +365,7 @@ Behaviour:
 - A failed validation saves nothing, re-shows the form with the entered values, and gives a clear message next to the field.
 - A missing course or content id shows a friendly "not found" page.
 - An unexpected error shows a friendly "something went wrong" page. Details are printed to the console and not shown to the user.
-- Database calls are wrapped in try/except in the model layer.
+- Database errors and other unexpected errors are caught by a central error handler (D-10).
 
 The length limits are working values and may be revisited if implementation shows a genuine need.
 
@@ -539,36 +558,312 @@ The length limits are working values and may be revisited if implementation show
 - **Evidence:** Terminal output showing 11 PASS lines.
 - **Branch / Commit:** feature/search-filter 25ba843 (feat: add search and content filtering operations)
 
+### DL-23 - Dashboard and reports, database operations (Tracker T-27)
+- **Date:** 2026-11-24
+- **Work performed:** Added get_dashboard in backend/models/dashboard.py: totals, completed, pending (Not started and In progress) and per-course progress.
+- **Result:** Covered by test cases TC-M21 to TC-M24 in the automated suite.
+- **Evidence:** docs/test_results.txt
+- **Branch / Commit:** feature/dashboard 4ab20f8 (feat: add dashboard totals and per-course progress)
+
+
+### DL-24 - Profile management, database operations (Tracker T-21)
+- **Date:** 2026-10-10
+- **Work performed:** Added get and save operations to the Profile model (one profile with id 1, no login).
+- **Result:** Covered by test cases TC-M01 to TC-M04 in the automated suite.
+- **Evidence:** docs/test_results.txt
+- **Branch / Commit:** feature/profile 2185d4b (feat: add profile view and save operations)
+
+
+### DL-25 - Validation (Tracker T-25)
+- **Date:** 2026-11-24
+- **Work performed:** Added backend/validation.py with the rules from section 18.1: required fields, length limits, email format, allowed types and statuses, filter and keyword cleaning.
+- **Result:** Covered by test cases TC-V01 to TC-V14 and the route tests for invalid input.
+- **Evidence:** docs/test_results.txt
+- **Branch / Commit:** feature/validation 083301f (feat: add input validation rules)
+
+
+### DL-26 - Web UI and exception handling (Tracker T-26, T-28)
+- **Date:** 2026-11-24
+- **Work performed:** Added all routes from section 18, the HTML templates (dashboard, courses, course detail, forms, profile, search, custom 404 and 500 pages), a modern indigo/purple stylesheet, a per-request database connection and central error handlers. db.py now accepts an optional database path so tests can use a temporary database. Recorded decision D-10.
+- **Result:** The app starts and the main pages load; behaviour is covered by the route tests TC-R01 to TC-R29.
+- **Evidence:** docs/test_results.txt
+- **Branch / Commit:** feature/web-ui 2a27666 (feat: add web UI routes, templates and error handling)
+
+
+### DL-27 - Automated tests and testing guide (Tracker T-29 to T-33)
+- **Date:** 2026-11-24
+- **Work performed:** Added docs/testing.md and the unittest suite (validation, model and route tests) with tests/run_tests.py.
+- **Result:** Run 1: 69 of 69 tests passed. No test failed, so no bug fixing was needed in this run.
+- **Evidence:** docs/test_results.txt (written by the run)
+- **Branch / Commit:** feature/testing 1621f49 (test: add automated test suite and testing guide)
+
+
+## 21. Decision Log
+The full decisions, with options, reasons and consequences, are in `docs/decisions.md`.
+
+| ID | Decision |
+|---|---|
+| D-01 | Separate frontend and backend folders |
+| D-02 | Feature branches only; merge into main at final integration |
+| D-03 | Python + Flask + SQLite + HTML/CSS |
+| D-04 | Search covers course and content titles; new course opens its detail page; Pending = Not started + In progress; one profile, no login |
+| D-05 | Server-rendered pages (no separate JavaScript API) |
+| D-06 | Profile not linked to courses; four fixed content types; created_at stored |
+| D-07 | Forms use GET/POST only; grouped search results; failed validation keeps the input |
+| D-08 | Each stage of work on its own branch, cut from the previous one |
+| D-09 | Status filter uses the three statuses only (no Pending option) |
+| D-10 | Central error handlers with custom 404/500 pages; search box in the navigation bar; validation errors return HTTP 400 |
+
+## 22. Bug / Debugging Log
+
+| ID | Problem | Found by | Root cause | Fix | Verification |
+|---|---|---|---|---|---|
+| BUG-01 | During the search and filtering task (T-24), the first check failed. | The check, together with `git status`, which showed `content_item.py` as unmodified. | The filter change had not been written to `backend/models/content_item.py`. | The file was written again with the type and status filter. | All 11 checks passed afterwards (commit 25ba843). |
+
+Process note: while checking cascade delete during the database task (T-19), the first multi-line terminal paste failed because of a paste error. The corrected one-line check passed. This was a terminal problem, not a defect in the project.
+
+Automated testing: the recorded regression run executed 69 tests, 69 passed, and no further defects were found by the suite. Any defect found later should be added here with its steps to reproduce, root cause, fix and commit.
+
+## 23. Testing Log
+
+**Method.** Automated tests with Python's `unittest` (they also run under `pytest`), run with `python tests/run_tests.py`. The approach is in `docs/testing.md` and the full output is in `docs/test_results.txt`. Each test uses a temporary or in-memory database, so the real database is never touched.
+
+**Runs.**
+
+| Run | Tracker task | Branch / commit | Date | Tests run | Passed | Failed or errors |
+|---|---|---|---|---|---|---|
+| 1. Functional | Test Plan, CRUD, Validation and Search/Filter Testing | feature/testing 1621f49 | 2026-11-24 | 69 | 69 | 0 |
+| 2. Regression | Regression Testing, Final Testing | feature/final-docs | 2026-11-24 | 69 | 69 | 0 |
+
+Environment of run 2: Python 3.13.3 on Windows 11.
+
+**Which tests belong to which tracker task.**
+
+| Tracker task | Test cases |
+|---|---|
+| CRUD Testing | TC-M01 to TC-M14, TC-R03 to TC-R07, TC-R09 to TC-R14 |
+| Validation Testing | TC-V01 to TC-V14, TC-M13, TC-R04, TC-R08, TC-R15 |
+| Search/Filter Testing | TC-M15 to TC-M20, TC-R16 to TC-R20 |
+| Dashboard, errors, safety and quality | TC-M21 to TC-M26, TC-R01, TC-R02, TC-R21 to TC-R29 |
+
+**Test cases (results of run 2).**
+
+| ID | Requirements | What is checked | Result |
+|---|---|---|---|
+| TC-M01 | FR-02 | There is no profile until one is saved | PASS |
+| TC-M02 | FR-01, FR-02 | Saving creates the profile and it can be read back | PASS |
+| TC-M03 | FR-01 | Saving again replaces the profile and keeps a single row | PASS |
+| TC-M04 | FR-01 | The database rejects a second profile (id other than 1) | PASS |
+| TC-M05 | FR-03, FR-04 | Courses are created and listed in alphabetical order | PASS |
+| TC-M06 | FR-05 | A course is found by id and a missing id returns None | PASS |
+| TC-M07 | FR-06 | Updating a course changes its fields | PASS |
+| TC-M08 | FR-07, NFR-04 | Deleting a course also deletes its content, leaving no orphans | PASS |
+| TC-M09 | FR-07 | Deleting a course that does not exist returns False | PASS |
+| TC-M10 | FR-08, FR-11 | New content starts as Not started and counts as pending | PASS |
+| TC-M11 | FR-09, FR-11 | Updating content changes its fields and status | PASS |
+| TC-M12 | FR-10 | Deleting content removes it; a missing id returns False | PASS |
+| TC-M13 | FR-16 | The database itself rejects an invalid status or type | PASS |
+| TC-M14 | FR-05 | Content is listed only under its own course, oldest first | PASS |
+| TC-M15 | FR-12 | Search finds content titles and shows the course each belongs to | PASS |
+| TC-M16 | FR-12 | Search finds course titles regardless of letter case | PASS |
+| TC-M17 | FR-12 | An empty keyword returns no results | PASS |
+| TC-M18 | FR-12 | The characters % and _ are searched literally, not as wildcards | PASS |
+| TC-M19 | FR-13 | Content can be filtered by type, by status and by both | PASS |
+| TC-M20 | FR-13 | Unknown filter values are treated as All | PASS |
+| TC-M21 | FR-14 | Dashboard totals count courses, content, completed and pending (D-04) | PASS |
+| TC-M22 | FR-15 | Per-course progress shows completed/total, including courses with no content | PASS |
+| TC-M23 | FR-14 | Dashboard totals follow status changes and course deletion | PASS |
+| TC-M24 | FR-14 | An empty database gives all-zero totals | PASS |
+| TC-M25 | NFR-05 | SQL-looking text is stored as plain text and the tables stay intact | PASS |
+| TC-M26 | NFR-04 | Every connection from the helper has foreign keys switched on | PASS |
+| TC-R01 | FR-14, FR-15 | The dashboard shows totals and per-course progress | PASS |
+| TC-R02 | FR-14 | The dashboard works with no data and invites the user to add a course | PASS |
+| TC-R03 | FR-01, FR-02 | A profile can be saved and is shown again on the profile page | PASS |
+| TC-R04 | FR-16 | An invalid profile shows messages, keeps the input and saves nothing | PASS |
+| TC-R05 | FR-02 | The dashboard greets the user by the saved profile name | PASS |
+| TC-R06 | FR-03 | Saving a new course opens that course's detail page (D-04) | PASS |
+| TC-R07 | FR-04 | The course list shows each course with its number of content items | PASS |
+| TC-R08 | FR-16 | An empty course title shows a message, keeps the input and saves nothing | PASS |
+| TC-R09 | FR-05 | The detail page shows the course, its content, types, status badges and progress | PASS |
+| TC-R10 | FR-06 | Editing a course saves the change and returns to its detail page | PASS |
+| TC-R11 | FR-07 | Deleting a course removes it and its content; the delete URL does not accept GET | PASS |
+| TC-R12 | FR-08 | Adding content returns to the course page where the new item is listed | PASS |
+| TC-R13 | FR-09, FR-11 | Editing content changes its fields and its status | PASS |
+| TC-R14 | FR-10 | Deleting content removes it from the course page | PASS |
+| TC-R15 | FR-16 | Invalid content shows messages, keeps the input and saves nothing | PASS |
+| TC-R16 | FR-13 | The course page filters content by type and status; unknown values show everything | PASS |
+| TC-R17 | FR-13 | The filter drop-downs keep the selected values | PASS |
+| TC-R18 | FR-12 | Search results list matching courses and matching content with their course | PASS |
+| TC-R19 | FR-12 | An empty keyword asks for one, and no match says so | PASS |
+| TC-R20 | FR-12 | Searching in a different letter case finds the same course | PASS |
+| TC-R21 | FR-17, NFR-03 | Missing courses or content show a friendly not-found page, not a crash | PASS |
+| TC-R22 | FR-17 | The 404 page is the custom page with a way back to the app | PASS |
+| TC-R23 | FR-17, NFR-03 | An unexpected database error shows the custom 500 page without technical details | PASS |
+| TC-R24 | NFR-05 | User text containing HTML is shown as text, not run | PASS |
+| TC-R25 | NFR-05 | Only http and https links become clickable links | PASS |
+| TC-R26 | NFR-01 | Every main page offers links to the dashboard, courses and profile, and search | PASS |
+| TC-R27 | NFR-01, FR-17 | Every internal link on the main pages leads to a working page | PASS |
+| TC-R28 | NFR-01 | Every form on the main pages submits to a route that exists | PASS |
+| TC-R29 | NFR-02 | With 300 courses and 900 content items the main pages respond in under 2 seconds | PASS |
+| TC-V01 | FR-16 | A profile with a name and a valid email is accepted | PASS |
+| TC-V02 | FR-16 | An empty or whitespace-only profile name is rejected | PASS |
+| TC-V03 | FR-16 | Invalid email addresses are rejected | PASS |
+| TC-V04 | FR-16 | Reasonable email addresses are accepted | PASS |
+| TC-V05 | FR-16 | Profile name over 100 and email over 254 characters are rejected | PASS |
+| TC-V06 | FR-16 | An empty or whitespace-only course title is rejected | PASS |
+| TC-V07 | FR-16 | Course input is trimmed and optional fields may be empty | PASS |
+| TC-V08 | FR-16 | Course title (150), description (1000) and category (50) limits are enforced | PASS |
+| TC-V09 | FR-16 | A content type outside the allowed list is rejected | PASS |
+| TC-V10 | FR-16, FR-11 | A status outside the allowed list is rejected | PASS |
+| TC-V11 | FR-16, FR-11 | Every allowed content type and status is accepted | PASS |
+| TC-V12 | FR-16 | Content title is required (max 150) and link/description is limited to 1000 | PASS |
+| TC-V13 | FR-13 | Unknown or empty filter values are treated as All | PASS |
+| TC-V14 | FR-12 | The search keyword is trimmed and None becomes empty | PASS |
+
+**Not covered by automated tests:** using the pages in a real browser and the look of the pages. See the demo checklist in section 33.
+
 ## 24. Requirements Traceability
 
 Chain: Requirement -> Story -> Design -> Implementation -> Test -> Evidence -> Git commit.
-The Story and Design columns are filled. The Implementation, Test, Evidence and Commit columns are filled as work is completed and verified. "pending" means no real evidence exists yet and will be filled as work is completed and verified. NFR-01 to NFR-08 are added later, in the Requirements Traceability Update task.
+All columns are filled from verified work. The Test column lists the automated test cases (IDs as in docs/test_results.txt) that cover each requirement. In the recorded regression run on 2026-11-24, 69 of 69 tests passed. The quick checks run during development are logged in the development log and are not counted as tests.
 
 | Requirement | Story | Design (prototype, 7.4) | Implementation | Test | Evidence | Commit |
 |---|---|---|---|---|---|---|
-| FR-01 | US-01 | Screen 5 | pending | pending | pending | pending |
-| FR-02 | US-01 | Screen 5 | pending | pending | pending | pending |
-| FR-03 | US-02 | Screen 2 | Model: Course.create (route pending) | pending | DL-20 (sanity check only) | b22864d |
-| FR-04 | US-02 | Screen 2 | Model: Course.get_all (route pending) | pending | DL-20 (sanity check only) | b22864d |
-| FR-05 | US-03 | Screen 3 | pending | pending | pending | pending |
-| FR-06 | US-04 | Screen 3 | Model: Course.update (route pending) | pending | DL-20 (sanity check only) | b22864d |
-| FR-07 | US-04 | Screen 3 | Model: Course.delete with cascade (route pending) | pending | DL-20 (sanity check only) | b22864d |
-| FR-08 | US-05 | Screen 3, 4 | Model: ContentItem.create (route pending) | pending | DL-21 (sanity check only) | fbeaa87 |
-| FR-09 | US-06 | Screen 3, 4 | Model: ContentItem.update (route pending) | pending | DL-21 (sanity check only) | fbeaa87 |
-| FR-10 | US-06 | Screen 3 | Model: ContentItem.delete (route pending) | pending | DL-21 (sanity check only) | fbeaa87 |
-| FR-11 | US-07 | Screen 4 | Model: status set in ContentItem.create and update (route pending) | pending | DL-21 (sanity check only) | fbeaa87 |
-| FR-12 | US-08 | Screen 2 | Model: search() in backend/models/search.py (route pending) | pending | DL-22 (sanity check only) | 25ba843 |
-| FR-13 | US-09 | Screen 3 | Model: ContentItem.get_by_course type and status filters (route pending) | pending | DL-22 (sanity check only) | 25ba843 |
-| FR-14 | US-10 | Screen 1 | pending | pending | pending | pending |
-| FR-15 | US-10 | Screen 1 | pending | pending | pending | pending |
-| FR-16 | US-11 | Screen 4 (error text) | pending | pending | pending | pending |
-| FR-17 | US-11 | No screen sketched; error handling designed in section 18.1 | pending | pending | pending | pending |
+| FR-01 | US-01 | Screen 5 | Profile.save; POST /profile | TC-M02, TC-M03, TC-M04, TC-R03 (all passed) | docs/test_results.txt | 2185d4b (code), 2a27666 (web) |
+| FR-02 | US-01 | Screen 5 | Profile.get; GET /profile | TC-M01, TC-M02, TC-R03, TC-R05 (all passed) | docs/test_results.txt | 2185d4b (code), 2a27666 (web) |
+| FR-03 | US-02 | Screen 2 | Course.create; GET, POST /courses/new | TC-M05, TC-R06 (all passed) | docs/test_results.txt | b22864d (code), 2a27666 (web) |
+| FR-04 | US-02 | Screen 2 | Course.get_all; GET /courses | TC-M05, TC-R07 (all passed) | docs/test_results.txt | b22864d (code), 2a27666 (web) |
+| FR-05 | US-03 | Screen 3 | Course.get_by_id and ContentItem.get_by_course; GET /courses/<id> | TC-M06, TC-M14, TC-R09 (all passed) | docs/test_results.txt | b22864d (code), 2a27666 (web) |
+| FR-06 | US-04 | Screen 3 | Course.update; GET, POST /courses/<id>/edit | TC-M07, TC-R10 (all passed) | docs/test_results.txt | b22864d (code), 2a27666 (web) |
+| FR-07 | US-04 | Screen 3 | Course.delete with cascade; POST /courses/<id>/delete | TC-M08, TC-M09, TC-R11 (all passed) | docs/test_results.txt | b22864d (code), 2a27666 (web) |
+| FR-08 | US-05 | Screen 3, 4 | ContentItem.create; GET, POST /courses/<id>/content/new | TC-M10, TC-R12 (all passed) | docs/test_results.txt | fbeaa87 (code), 2a27666 (web) |
+| FR-09 | US-06 | Screen 3, 4 | ContentItem.update; GET, POST /content/<id>/edit | TC-M11, TC-R13 (all passed) | docs/test_results.txt | fbeaa87 (code), 2a27666 (web) |
+| FR-10 | US-06 | Screen 3 | ContentItem.delete; POST /content/<id>/delete | TC-M12, TC-R14 (all passed) | docs/test_results.txt | fbeaa87 (code), 2a27666 (web) |
+| FR-11 | US-07 | Screen 4 | Status field in ContentItem.create and update; content forms | TC-M10, TC-M11, TC-R13, TC-V10, TC-V11 (all passed) | docs/test_results.txt | fbeaa87 (code), 2a27666 (web) |
+| FR-12 | US-08 | Screen 2 | search() in backend/models/search.py; GET /search | TC-M15, TC-M16, TC-M17, TC-M18, TC-R18, TC-R19, TC-R20, TC-V14 (all passed) | docs/test_results.txt | 25ba843 (code), 2a27666 (web) |
+| FR-13 | US-09 | Screen 3 | ContentItem.get_by_course type/status filters; ?type=&status= on /courses/<id> | TC-M19, TC-M20, TC-R16, TC-R17, TC-V13 (all passed) | docs/test_results.txt | 25ba843 (code), 2a27666 (web) |
+| FR-14 | US-10 | Screen 1 | get_dashboard totals; GET / | TC-M21, TC-M23, TC-M24, TC-R01, TC-R02 (all passed) | docs/test_results.txt | 4ab20f8 (code), 2a27666 (web) |
+| FR-15 | US-10 | Screen 1 | get_dashboard per_course; GET / | TC-M22, TC-R01 (all passed) | docs/test_results.txt | 4ab20f8 (code), 2a27666 (web) |
+| FR-16 | US-11 | Screen 4 (error text) | backend/validation.py, used by every form in backend/app.py | TC-M13, TC-R04, TC-R08, TC-R15, TC-V01, TC-V02, TC-V03, TC-V04, TC-V05, TC-V06, TC-V07, TC-V08, TC-V09, TC-V10, TC-V11, TC-V12 (all passed) | docs/test_results.txt | 083301f (code), 2a27666 (web) |
+| FR-17 | US-11 | No screen sketched; error handling designed in section 18.1 | Central error handlers and custom 404/500 pages in backend/app.py | TC-R21, TC-R22, TC-R23, TC-R27 (all passed) | docs/test_results.txt | 2a27666 |
 
+### NFR verification
 
+| ID | Requirement | Verification |
+|---|---|---|
+| NFR-01 | Usability: navigation on every page, working links and forms | TC-R26, TC-R27, TC-R28 (all passed) |
+| NFR-02 | Performance: about 2 seconds or less | TC-R29 (all passed) (checked in the recorded run with 300 courses and 900 content items) |
+| NFR-03 | Reliability: no crashes on bad input or missing records | TC-R21, TC-R23 (all passed) |
+| NFR-04 | Data integrity: no orphaned content, foreign keys enforced | TC-M08, TC-M26 (all passed) |
+| NFR-05 | Security (basic): parameterized queries, escaped output, safe links | TC-M25, TC-R24, TC-R25 (all passed) |
+| NFR-06 | Maintainability: frontend/backend structure (D-01) | Verified by code structure and review only. No automated test. |
+| NFR-07 | Portability: runs locally on Windows with Python and pip | The suite ran in the project virtual environment (Python 3.13.3) on Windows 11: 69 of 69 tests passed. The app is started with python -m flask --app backend.app run. |
+| NFR-08 | Testability: automated tests in tests/ | 69 automated tests in tests/ (69 passed in the recorded run). |
 
+## 25. Git / GitHub Strategy
+- All development happens on feature branches. Each stage of work starts from the previous branch (D-08).
+- Nothing is merged into `main` during development (D-02). `main` is updated once, at final integration, after the tests pass.
+- Commit messages follow the pattern `feat:`, `fix:`, `test:`, `docs:`, `chore:` with a meaningful description.
 
+| Branch | Purpose | Tip commit |
+|---|---|---|
+| `feature/project-architecture` | Requirements, design documents and folder structure | d7d9dfc |
+| `feature/dev-environment` | Flask development environment | 9d578b5 |
+| `feature/database` | SQLite connection and initialization | b8cd612 |
+| `feature/models` | Model classes | 7df3c01 |
+| `feature/course-crud` | Course database operations | 5ed765d |
+| `feature/content-crud` | Learning content database operations | 7019fd7 |
+| `feature/search-filter` | Search and filtering | 72455e0 |
+| `feature/profile` | Profile operations | 4ab20f8 |
+| `feature/validation` | Input validation | 083301f |
+| `feature/web-ui` | Web UI, routes and error handling | 2a27666 |
+| `feature/final-docs` | README, guides and final documentation | 1621f49 |
+| `feature/testing` | Automated tests and testing guide | 1621f49 |
 
+Final integration: pending. The branches are merged into `main` in creation order, only after final verification.
 
+## 26. Current Project Status
+As of 2026-11-24, all planned requirements (FR-01 to FR-17) are implemented and covered by automated tests: 69 of 69 tests passed in the recorded regression run. The application can be started and used in a browser (see the README).
 
+Still to be done by the developer: the manual browser walk-through in section 33, the demo rehearsal, and the final review of the GitHub repository.
 
+## 27. Completed Work
 
+| Tracker tasks | Work | Evidence |
+|---|---|---|
+| 1-3 | Repository, folder structure, documentation setup | Section 17, `docs/decisions.md` |
+| 4-7 | Problem statement, stakeholders, scope, Design Thinking | Sections 2-7 |
+| 8-11 | Functional and non-functional requirements, user stories, traceability | Sections 8-11, 24 |
+| 12-17 | Architecture, ER diagram, schema, UI flow, routes, validation design | Sections 13-19 |
+| 18-20 | Environment, database, models | DL-17 to DL-19 |
+| 21-24, 27 | Profile, course and content operations, search/filter, dashboard | DL-20 to DL-24 |
+| 25 | Validation | `backend/validation.py`, commit 083301f |
+| 26, 28 | Error handling and web UI | `backend/app.py`, `frontend/`, commit 2a27666 |
+| 29-35 | Testing guide, automated tests, regression run, traceability update | Sections 23-24, `docs/testing.md`, `docs/test_results.txt`, commit 1621f49 |
+| 36-37 | Technical documentation, README, user manual and installation guide | This document, `README.md`, `docs/user_manual.md`, `docs/installation_guide.md` |
+
+## 28. Work In Progress
+No implementation work is in progress. Open items for the developer: browser walk-through (section 33), demo rehearsal, final review (tracker tasks 38 to 41).
+
+## 29. Next Steps
+1. Do the browser walk-through in section 33 and note anything unexpected in section 22.
+2. Rehearse the demo and the viva questions in section 34.
+3. Review the GitHub repository page and the final Git history.
+4. Submit.
+
+## 30. Known Issues
+- Search is case-insensitive for English letters only (a SQLite limit for the default LIKE).
+- The web pages have not been checked by automated browser tests, only through Flask's test client.
+- The manual browser walk-through has not been recorded yet.
+- The tracker dates come from the original plan and differ from the Git dates (see section 12).
+- The application runs on Flask's development server, which is fine for a demo but not for production use.
+
+## 31. Limitations
+- One profile and no login (D-04).
+- Search covers titles only.
+- The four content types are fixed (D-06).
+- No file uploads, due dates or reminders (out of scope, section 5).
+- No pagination. The speed target was checked with 300 courses and 900 content items.
+- Data is stored in a local SQLite file.
+
+## 32. Future Improvements
+- User accounts and sign-in.
+- Searching descriptions as well as titles.
+- Tags, sorting and pagination.
+- Import and export of course data.
+- Browser-level automated tests.
+
+## 33. Demo Notes
+Start the app (README): `python -m flask --app backend.app run`, then open http://127.0.0.1:5000.
+
+Suggested demo order, with a box to tick once it has been tried:
+- [ ] Dashboard shows zeros and a button to add the first course.
+- [ ] Profile: save a name and email. Try a bad email and see the message. The dashboard greets you by name.
+- [ ] Add a course. You land on its detail page.
+- [ ] Try to add a course with an empty title. The message appears and nothing is saved.
+- [ ] Add three content items of different types and statuses. The status badges differ, and pending items stand out.
+- [ ] Filter the content by type and by status. Clear the filter.
+- [ ] Edit a content item and change its status to Completed. The progress bar moves.
+- [ ] Search for a word from a course title and from a content title, in a different letter case. Search for something that does not exist.
+- [ ] Dashboard: totals and per-course progress have changed.
+- [ ] Delete a content item, then delete the course (confirm the prompt). The dashboard returns to zero for it.
+- [ ] Open a page that does not exist, for example /courses/999. The custom 404 page appears.
+- [ ] Show `python tests/run_tests.py` passing, and `git log --oneline --graph --all`.
+
+## 34. Viva Preparation
+- **What is the project?** A course content manager: courses with learning content, search, filters and a progress dashboard. It is not a task manager. Status describes learning progress.
+- **Why Flask and SQLite?** Allowed by the college (Option A), simple to run, and easy to explain (D-03). SQLite needs no server.
+- **Why server-rendered pages?** Simpler than a separate JavaScript API and enough for the requirement (D-05). Frontend and backend are separated by folders and responsibilities inside one Flask app.
+- **How is OOP used?** The models are classes (`Course`, `ContentItem`, `Profile`) with their own database operations. `ContentItem` knows its allowed values and whether it is pending.
+- **How do you stop SQL injection?** Every query is parameterized. A test stores SQL-looking text and checks that the tables stay intact (TC-M25).
+- **How do you stop HTML injection?** Jinja escapes output, and only http and https links are clickable (TC-R24, TC-R25).
+- **What does ON DELETE CASCADE do?** Deleting a course deletes its content. SQLite only enforces it if `PRAGMA foreign_keys = ON` is set on each connection, which the connection helper does (TC-M08, TC-M26).
+- **How does validation work?** `backend/validation.py` trims and checks the input, returns values and messages, and the form is shown again with the user's input kept (TC-R04, TC-R08, TC-R15).
+- **How does search work?** A case-insensitive title match on courses and content, with `%` and `_` treated literally (TC-M15 to TC-M18).
+- **What counts as pending?** Not started and In progress (D-04). The status filter uses the three real statuses (D-09).
+- **How are errors handled?** Central error handlers show custom 404 and 500 pages and log the details to the console, never to the user (D-10, TC-R21 to TC-R23).
+- **How were requirements traced?** Section 24 links each requirement to its story, design, code, tests, evidence and commit.
+- **Why are there so many branches?** Each stage was developed on its own branch and merged into `main` only at the end (D-02, D-08).
+- **What did testing show?** 69 of 69 automated tests passed in the recorded run. One earlier defect (BUG-01) was caught by a check during development.
+- **What are the limits?** One profile, no login, title-only search, development server (section 31).
+- **What would you improve?** Accounts, richer search, tags, pagination, export (section 32).

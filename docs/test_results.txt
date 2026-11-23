@@ -143,6 +143,6 @@ test_profile_valid (tests.test_validation.ValidationTests.test_profile_valid)
 TC-V01 | FR-16 | A profile with a name and a valid email is accepted ... ok
 
 ----------------------------------------------------------------------
-Ran 69 tests in 1.057s
+Ran 69 tests in 0.983s
 
 OK

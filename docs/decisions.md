@@ -1,4 +1,4 @@
-﻿# Decision Log
+# Decision Log
 
 ## D-01 - Frontend/backend separation
 - **Date:** 2026-10-03
@@ -78,3 +78,14 @@
 - **Selected approach:** (a).
 - **Reason:** Keeps the filter matching the sketched dropdown and the stored values. Pending is still defined in D-04 and is used for the dashboard counts.
 - **Consequences:** To see everything pending, the user filters by Not started and by In progress separately. This can be revisited if it proves awkward.
+
+## D-10 - Error handling, search placement and validation responses
+- **Date:** 2026-11-24
+- **Decision:** Three choices made while building the web UI.
+  1. Missing records and unexpected errors are handled by central Flask error handlers: a custom 404 page, a custom 500 page that logs the details to the console, and a generic page for other HTTP errors such as 405. This replaces the plan in section 18.1 to wrap database calls in try/except inside each model method.
+  2. The search box is in the navigation bar on every page. The prototype sketch showed it on the Courses screen only.
+  3. A form that fails validation returns HTTP 400 and is shown again with the user's input and the messages.
+- **Options considered:** (1) try/except in every model method; (2) search box on the Courses page only; (3) HTTP 200 with the form shown again.
+- **Selected approach:** As above.
+- **Reason:** One central place for error handling is simpler and gives the same result for the user, who never sees a raw database error. Search in the navigation bar is available everywhere (NFR-01). HTTP 400 is the correct status for rejected input and is easy to test.
+- **Consequences:** Model methods let database errors propagate to the error handler. Section 18.1 was updated to say so.
